@@ -15,7 +15,7 @@ admin.initializeApp({
     // credential: admin.credential.cert(serviceAccount)
     credential: admin.credential.cert({
         "type": "service_account",
-        "project_id": "bot-orders",
+        "project_id": "seasondb-6d28b",
         "private_key_id": process.env.ADMIN_PRIVATE_KEY_ID,
         "private_key": process.env.ADMIN_PRIVATE_KEY.replace(/\\n/g, '\n'),
         "client_email": process.env.CLIENT_EMAIL,
