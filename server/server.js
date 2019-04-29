@@ -247,7 +247,7 @@ app.post('/api/linebot', jsonParser, (req, res) => {
                                                     .then(cancel => {
                                                         obj.messages.push({
                                                             type: 'text',
-                                                            text: `${emoji(0x100035)}คืนรายการสั่งซื้อ ${orderId} เรียบร้อยค่ะ${emoji(0x100018)}`//${formatOrder(order.data())}`
+                                                            text: `${emoji(0x10001C)}ตีคืนรายการสั่งซื้อ ${orderId} เรียบร้อยค่ะ${emoji(0x100018)}`//${formatOrder(order.data())}`
                                                         })
                                                         reply(obj, LINE_TH);
                                                     })
@@ -282,7 +282,7 @@ app.post('/api/linebot', jsonParser, (req, res) => {
                                                     .then(cancel => {
                                                         obj.messages.push({
                                                             type: 'text',
-                                                            text: `${emoji(0x100035)}คืนรายการสั่งซื้อ ${orderId} เรียบร้อยค่ะ${emoji(0x100018)}`//${formatOrder(order.data())}`
+                                                            text: `${emoji(0x100061)}ส่งใหม่รายการสั่งซื้อ ${orderId} เรียบร้อยค่ะ${emoji(0x100018)}`//${formatOrder(order.data())}`
                                                         })
                                                         reply(obj, LINE_TH);
                                                     })
@@ -630,7 +630,8 @@ app.post('/api/bot/kh', jsonParser, (req, res) => {
                                                                         timestamp: admin.firestore.FieldValue.serverTimestamp(),
                                                                         orderDate,
                                                                         orderNo: no,
-                                                                        country: 'KH'
+                                                                        country: 'KH',
+                                                                        return: false
                                                                     }, resultOrder.data))
                                                                     .then(order => {
                                                                         // db.collection('groups').doc(groupId).set({})
