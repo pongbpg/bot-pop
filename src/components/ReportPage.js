@@ -118,21 +118,21 @@ export class ReportPage extends React.Component {
                                         <div className="field is-grouped is-grouped-centered">
                                             <p className="control">
                                                 <a className="button is-danger is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/delivery?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=pdf&country=${this.state.country}`}
+                                                    href={`http://yaumjai.com:3000/api/season/delivery?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=pdf&country=${this.state.country}`}
                                                     target="_blank">
                                                     PDF
                                         </a>
                                             </p>
                                             <p className="control">
                                                 <a className="button is-success is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/delivery?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=excel&country=${this.state.country}`}
+                                                    href={`http://yaumjai.com:3000/api/season/delivery?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=excel&country=${this.state.country}`}
                                                     target="_blank">
                                                     EXCEL
                                         </a>
                                             </p>
                                             <p className="control">
                                                 <a className="button is-warning is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/delivery?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=flash&country=${this.state.country}`}
+                                                    href={`http://yaumjai.com:3000/api/season/delivery?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=flash&country=${this.state.country}`}
                                                     target="_blank">
                                                     FLASH
                                         </a>
@@ -147,14 +147,14 @@ export class ReportPage extends React.Component {
                                         <div className="field is-grouped is-grouped-centered">
                                             <p className="control">
                                                 <a className="button is-danger is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/dailyTrack?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=pdf`}
+                                                    href={`http://yaumjai.com:3000/api/season/dailyTrack?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=pdf`}
                                                     target="_blank">
                                                     PDF
                                         </a>
                                             </p>
                                             <p className="control">
                                                 <a className="button is-success is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/dailyTrack?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=excel`}
+                                                    href={`http://yaumjai.com:3000/api/season/dailyTrack?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=excel`}
                                                     target="_blank">
                                                     EXCEL
                                         </a>
@@ -169,19 +169,19 @@ export class ReportPage extends React.Component {
                                         <div className="field is-grouped is-grouped-centered">
                                             <p className="control">
                                                 <a className="button is-danger is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/dailySayHi?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf&sum=${this.state.sum}`}
+                                                    href={`http://yaumjai.com:3000/api/season/dailySayHi?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf&sum=${this.state.sum}`}
                                                     target="_blank">
                                                     PDF</a>
                                             </p>
                                             <p className="control">
                                                 <a className="button is-success is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/dailySayHi?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel&sum=${this.state.sum}`}
+                                                    href={`http://yaumjai.com:3000/api/season/dailySayHi?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel&sum=${this.state.sum}`}
                                                     target="_blank">
                                                     EXCEL</a>
                                             </p>
                                             {/* <p className="control">
                                                 <a className="button is-success is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/dailySayHi?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel`}
+                                                    href={`http://yaumjai.com:3000/api/season/dailySayHi?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel`}
                                                     target="_blank">
                                                     EXCEL</a>
                                             </p> */}
@@ -208,13 +208,13 @@ export class ReportPage extends React.Component {
                                             <div className="field is-grouped is-grouped-centered">
                                                 <p className="control">
                                                     <a className="button is-danger is-centered is-small"
-                                                        href={`http://yaumjai.com:3000/api/report/dailyProduct?uid=${this.state.uid}&page=${this.state.page}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf`}
+                                                        href={`http://yaumjai.com:3000/api/season/dailyProduct?uid=${this.state.uid}&page=${this.state.page}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf`}
                                                         target="_blank">
                                                         PDF</a>
                                                 </p>
                                                 <p className="control">
                                                     <a className="button is-success is-centered is-small"
-                                                        href={`http://yaumjai.com:3000/api/report/dailyProduct?uid=${this.state.uid}&page=${this.state.page}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel`}
+                                                        href={`http://yaumjai.com:3000/api/season/dailyProduct?uid=${this.state.uid}&page=${this.state.page}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel`}
                                                         target="_blank">
                                                         EXCEL</a>
                                                 </p>
@@ -229,13 +229,13 @@ export class ReportPage extends React.Component {
                                         <div className="field is-grouped is-grouped-centered">
                                             <p className="control">
                                                 <a className="button is-danger is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/item/admin?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf`}
+                                                    href={`http://yaumjai.com:3000/api/season/item/admin?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf`}
                                                     target="_blank">
                                                     PDF</a>
                                             </p>
                                             <p className="control">
                                                 <a className="button is-success is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/item/admin?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel`}
+                                                    href={`http://yaumjai.com:3000/api/season/item/admin?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel`}
                                                     target="_blank">
                                                     EXCEL</a>
                                             </p>
@@ -250,13 +250,13 @@ export class ReportPage extends React.Component {
                                         <div className="field is-grouped is-grouped-centered">
                                             <p className="control">
                                                 <a className="button is-danger is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/dailyBank?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf`}
+                                                    href={`http://yaumjai.com:3000/api/season/dailyBank?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf`}
                                                     target="_blank">
                                                     PDF</a>
                                             </p>
                                             <p className="control">
                                                 <a className="button is-success is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/dailyBank?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel`}
+                                                    href={`http://yaumjai.com:3000/api/season/dailyBank?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel`}
                                                     target="_blank">
                                                     EXCEL</a>
                                             </p>
@@ -271,13 +271,13 @@ export class ReportPage extends React.Component {
                                         <div className="field is-grouped is-grouped-centered">
                                             <p className="control">
                                                 <a className="button is-danger is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/dailyStatement?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf`}
+                                                    href={`http://yaumjai.com:3000/api/season/dailyStatement?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf`}
                                                     target="_blank">
                                                     PDF</a>
                                             </p>
                                             <p className="control">
                                                 <a className="button is-success is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/dailyStatement?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel`}
+                                                    href={`http://yaumjai.com:3000/api/season/dailyStatement?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel`}
                                                     target="_blank">
                                                     EXCEL</a>
                                             </p>
@@ -292,13 +292,13 @@ export class ReportPage extends React.Component {
                                         <div className="field is-grouped is-grouped-centered">
                                             <p className="control">
                                                 <a className="button is-danger is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/com/admin?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf`}
+                                                    href={`http://yaumjai.com:3000/api/season/com/admin?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf`}
                                                     target="_blank">
                                                     PDF</a>
                                             </p>
                                             <p className="control">
                                                 <a className="button is-success is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/com/admin?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel`}
+                                                    href={`http://yaumjai.com:3000/api/season/com/admin?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel`}
                                                     target="_blank">
                                                     EXCEL</a>
                                             </p>
@@ -314,13 +314,13 @@ export class ReportPage extends React.Component {
                                         <div className="field is-grouped is-grouped-centered">
                                             <p className="control">
                                                 <a className="button is-danger is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/dailyCost?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf&sum=${this.state.sum}`}
+                                                    href={`http://yaumjai.com:3000/api/season/dailyCost?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf&sum=${this.state.sum}`}
                                                     target="_blank">
                                                     PDF</a>
                                             </p>
                                             <p className="control">
                                                 <a className="button is-success is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/dailyCost?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel&sum=${this.state.sum}`}
+                                                    href={`http://yaumjai.com:3000/api/season/dailyCost?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel&sum=${this.state.sum}`}
                                                     target="_blank">
                                                     EXCEL</a>
                                             </p>
@@ -336,13 +336,13 @@ export class ReportPage extends React.Component {
                                         <div className="field is-grouped is-grouped-centered">
                                             <p className="control">
                                                 <a className="button is-danger is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/dailyChannel?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf&sum=${this.state.sum}`}
+                                                    href={`http://yaumjai.com:3000/api/season/dailyChannel?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf&sum=${this.state.sum}`}
                                                     target="_blank">
                                                     PDF</a>
                                             </p>
                                             <p className="control">
                                                 <a className="button is-success is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/report/dailyChannel?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel&sum=${this.state.sum}`}
+                                                    href={`http://yaumjai.com:3000/api/season/dailyChannel?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel&sum=${this.state.sum}`}
                                                     target="_blank">
                                                     EXCEL</a>
                                             </p>
