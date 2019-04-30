@@ -93,7 +93,7 @@ app.post('/api/linebot', jsonParser, (req, res) => {
     } else if (msg.indexOf('@@format') > -1) {
         obj.messages.push({
             type: 'text',
-            text: `#n:ชื่อผู้รับสินค้า\n#t:เบอร์โทรศัพท์\n#a:ที่อยู่\n#o:รายการสินค้า\n#b:ชื่อธนาคารหรือCOD\n#d:ค่าขนส่ง\n#f:Facebookลูกค้า\n#z:ชื่อเพจหรือLine@`
+            text: `#n:ชื่อผู้รับสินค้า\n#a:ที่อยู่\n#t:เบอร์โทรศัพท์\n#o:รายการสินค้า\n#b:รายการโอนเงิน\n#c:ประเภทลูกค้า\n#f:ชื่อเฟสลูกค้า\n#z:(Lineเติม@)รหัสเพจ`
         })
         reply(obj, LINE_TH);
     } else if (msg.indexOf('@@product') > -1) {
