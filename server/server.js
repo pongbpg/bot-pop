@@ -31,8 +31,7 @@ db.settings(settings);
 const LINE_MESSAGING_API = 'https://api.line.me/v2/bot/message';
 const LINE_TH = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer P/BaTZg8WEP4v2YXVkETNQBAFPnrJJTzai3etBqteKGv/6hFYrGjUHTYN1D4BZ3GX92rm1pRxx+qs1qX1/AC1P/Df/wpZF07US/xoDAnnWGbinWQHycmnq1oF6BpjamaPwm6QMgq2FnkxEY7N9uzsgdB04t89/1O/w1cDnyilFU=
-    `
+    'Authorization': `Bearer P/BaTZg8WEP4v2YXVkETNQBAFPnrJJTzai3etBqteKGv/6hFYrGjUHTYN1D4BZ3GX92rm1pRxx+qs1qX1/AC1P/Df/wpZF07US/xoDAnnWGbinWQHycmnq1oF6BpjamaPwm6QMgq2FnkxEY7N9uzsgdB04t89/1O/w1cDnyilFU=`
 };
 var jsonParser = bodyParser.json();
 app.post('/api/linebot', jsonParser, (req, res) => {
