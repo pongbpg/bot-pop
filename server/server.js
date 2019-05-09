@@ -210,6 +210,14 @@ app.post('/api/linebot', jsonParser, (req, res) => {
                                                                 .set({ amount: balance }, { merge: true })
                                                         })
                                                 }
+                                                await db.collection('payments')
+                                                    .where('orderId', '==', orderId)
+                                                    .get()
+                                                    .then(snapShot => {
+                                                        snapShot.forEach(pay => {
+                                                            pay.ref.delete();
+                                                        })
+                                                    })
                                                 await orderRef.delete()
                                                     .then(cancel => {
                                                         obj.messages.push({
@@ -386,6 +394,7 @@ app.post('/api/linebot', jsonParser, (req, res) => {
                                                                                             .set({ amount: balance }, { merge: true })
                                                                                     })
                                                                             }
+
                                                                             await obj.messages.push({
                                                                                 type: 'text',
                                                                                 text: `รหัสสั่งซื้อ: ${orderId}\n${resultOrder.text}\n\n⛔️โปรดอ่านทุกบรรทัด⛔️\n👉กรุณาตรวจสอบข้อมูลรายการสั่งซื้อด้านบนให้ครบถ้วน ถ้าหากพบว่าไม่ถูกต้องกรุณาแจ้งแอดมินให้แก้ไขทันที\n👉หากไม่มีการทักท้วงจากลูกค้า หรือมีการจัดส่งสินค้าเรียบร้อยแล้ว ทางร้านจะถือว่าลูกค้ายืนยันข้อมูลรายการสั่งซื้อดังกล่าว และทางร้านจะไม่รับผิดชอบกรณีใดๆ ทั้งสิ้น\n🙏ขอบคุณนะคะที่อุดหนุนสินค้า😊`
@@ -394,6 +403,31 @@ app.post('/api/linebot', jsonParser, (req, res) => {
                                                                                 type: 'text',
                                                                                 text: `@@ยกเลิก:${orderId}`
                                                                             })
+                                                                            for (var b = 0; b < resultOrder.data.banks.length; b++) {
+                                                                                if (['COD', 'CM', 'XX', 'CP'].indexOf(resultOrder.data.banks[b].name) == -1) {
+                                                                                    await db.collection('payments')
+                                                                                        .where('name', '==', resultOrder.data.banks[b].name)
+                                                                                        .where('date', '==', resultOrder.data.banks[b].date)
+                                                                                        .where('time', '==', resultOrder.data.banks[b].time)
+                                                                                        .where('price', '==', resultOrder.data.banks[b].price)
+                                                                                        .get()
+                                                                                        .then(snapShot => {
+                                                                                            snapShot.forEach(doc => {
+                                                                                                obj.messages.push({
+                                                                                                    type: 'text',
+                                                                                                    text: `⚠กรุณาตรวจสอบรายการโอนนี้มีซ้ำ⚠
+                                                                                                รหัสสั่งซื้อ:${doc.data().orderId} เพจ:${doc.data().page}
+                                                                                                รายการที่ซ้ำ: ${doc.data().name} ${moment(doc.data().date, 'YYYYMMDD').format('DD/MM/YY')} ${doc.data().time} จำนวน ${formatMoney(doc.data().price, 0)} บาท`
+                                                                                                })
+                                                                                            })
+                                                                                            db.collection('payments').add({
+                                                                                                orderId,
+                                                                                                ...resultOrder.data.banks[b],
+                                                                                                page: resultOrder.data.page
+                                                                                            })
+                                                                                        })
+                                                                                }
+                                                                            }
                                                                             await reply(obj, LINE_TH);
                                                                         }
                                                                         callback();
@@ -601,27 +635,48 @@ const initMsgOrder = (txt) => {
                                         let price = Number(arr[a].split('=')[1].replace(/\D/g, ''));
                                         let name = '';
                                         let time = '00.00';
+                                        let date = moment().format('YYYYMMDD');
                                         if (bank1.match(/[a-zA-Z]+/g, '') == null) {
                                             name = `${emoji(0x1000A6)}ธนาคารundefined`;
-                                            time = 'undefined';
+                                            // price = 'undefined';
+                                        } else {
+                                            name = bank1.match(/[a-zA-Z]+/g, '')[0];
+                                        }
+                                        if (bank1.match(/\d{6}/g) == null && ['COD', 'CM', 'XX', 'CP'].indexOf(bank1) == -1) {
+                                            // name = bank1.match(/[a-zA-Z]+/g, '')[0];
+                                            date = `${emoji(0x1000A6)}วันที่โอนundefined`;
+                                            // price = 'undefined';
+                                        } else {
+                                            date = ['COD', 'CM', 'XX', 'CP'].indexOf(bank1) == -1 ?
+                                                moment(bank1.match(/\d{6}/g)[0], 'DDMMYY').isValid() ?
+                                                    moment(bank1.match(/\d{6}/g)[0], 'DDMMYY').format('YYYYMMDD') : `${emoji(0x1000A6)}วันที่โอนundefined`
+                                                : date;
                                         }
                                         if (bank1.match(/\d{2}\.\d{2}/g) == null && ['COD', 'CM', 'XX', 'CP'].indexOf(bank1) == -1) {
-                                            name = bank1.match(/[a-zA-Z]+/g, '')[0];
+                                            // name = bank1.match(/[a-zA-Z]+/g, '')[0];
                                             time = `${emoji(0x1000A6)}เวลาโอนundefined`;
-                                            price = 'undefined';
-                                        }
-                                        if (time != 'undefined' && price != 'undefined') {
-                                            name = bank1.match(/[a-zA-Z]+/g, '')[0];
+                                            // price = 'undefined';
+                                        } else {
                                             time = ['COD', 'CM', 'XX', 'CP'].indexOf(bank1) == -1 ? bank1.match(/\d{2}\.\d{2}/g)[0] : time;
                                         }
+                                        // if (price != 'undefined') {
+                                        //     name = bank1.match(/[a-zA-Z]+/g, '')[0];
+                                        //     date = ['COD', 'CM', 'XX', 'CP'].indexOf(bank1) == -1 ?
+                                        //         moment(bank1.match(/\d{6}/g)[0], 'DDMMYY').isValid() ?
+                                        //             moment(bank1.match(/\d{6}/g)[0], 'DDMMYY').format('YYYYMMDD') : `${emoji(0x1000A6)}วันที่โอนundefined`
+                                        //         : date;
+                                        //     time = ['COD', 'CM', 'XX', 'CP'].indexOf(bank1) == -1 ? bank1.match(/\d{2}\.\d{2}/g)[0] : time;
+                                        // }
                                         banks.push({
                                             name,
+                                            date,
                                             time,
                                             price
                                         })
                                     } else {
                                         banks.push({
                                             name: arr[a].toUpperCase(),
+                                            time: '00.00',
                                             price: `${emoji(0x1000A6)}ยอดเงินundefined`
                                         })
                                     }
@@ -677,8 +732,8 @@ const initMsgOrder = (txt) => {
                         checkBank = true;
                     }
                 }
-                return checkBank
-                    ? bank.name + (bank.time == '00.00' ? '' : bank.time) + '=' + formatMoney(bank.price, 0)
+                return checkBank && !isNaN(bank.price)
+                    ? bank.name + ' ' + (bank.time == '00.00' ? '' : (bank.date.indexOf('undefined') > -1 ? bank.date : moment(bank.date, 'YYYYMMDD').format('DD/MM/YY'))) + (bank.time == '00.00' ? '' : ' ' + bank.time + 'น.') + '=' + formatMoney(bank.price, 0)
                     : `${emoji(0x1000A6) + bank.name}undefined`
                 // return bank.name.indexOf('COD') > -1 && ['A', 'K', 'C'].indexOf(data.name.substr(0, 1)) == -1
                 //     ? `${emoji(0x1000A6) + bank.name}undefined`
