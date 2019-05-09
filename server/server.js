@@ -733,7 +733,7 @@ const initMsgOrder = (txt) => {
                     }
                 }
                 return checkBank && !isNaN(bank.price)
-                    ? bank.name + ' ' + (bank.time == '00.00' ? '' : (bank.date.indexOf('undefined') > -1 ? bank.date : moment(bank.date, 'YYYYMMDD').format('DD/MM/YY'))) + (bank.time == '00.00' ? '' : ' ' + bank.time + 'น.') + '=' + formatMoney(bank.price, 0)
+                    ? bank.name + (bank.time == '00.00' ? '' : ' ' + (bank.date.indexOf('undefined') > -1 ? bank.date : moment(bank.date, 'YYYYMMDD').format('DD/MM/YY'))) + (bank.time == '00.00' ? '' : ' ' + bank.time + 'น.') + '=' + formatMoney(bank.price, 0)
                     : `${emoji(0x1000A6) + bank.name}undefined`
                 // return bank.name.indexOf('COD') > -1 && ['A', 'K', 'C'].indexOf(data.name.substr(0, 1)) == -1
                 //     ? `${emoji(0x1000A6) + bank.name}undefined`
@@ -832,7 +832,7 @@ const formatOrder = (data) => {
 เบอร์โทร: ${data.tel ? data.tel : `${emoji(0x1000A6)}undefined`}  
 ที่อยู่: ${data.addr ? data.addr : `${emoji(0x1000A6)}undefined`} 
 รายการสินค้า: ${data.product
-            ? data.product.map((p, i) => '\n' + p.code + ':' + p.name + ' ' + p.amount + (p.amount == 'undefined' ? '' : ' ' + p.unit))
+            ? data.product.map((p, i) => '\n' + p.code + ':' + p.name + ' =' + p.amount + (p.amount == 'undefined' ? '' : ' ' + p.unit))
             : `${emoji(0x1000A6)}undefined`} 
 ธนาคาร: ${data.bank} ${isNaN(data.costs) ? data.costs : ''}
 รวมยอดชำระ: ${formatMoney(data.price, 0)}บาท 
