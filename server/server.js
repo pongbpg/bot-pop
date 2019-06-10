@@ -703,6 +703,7 @@ const initMsgOrder = (txt) => {
                                         value = `${value + ' ' + emoji(0x1000A6)}รหัสไปรษณีย์ไม่ถูกต้องundefined`
                                     }
                                 }
+                                value = value.replace('99999', '')
                             } else if (key == 'tel') {
                                 value = value.replace(/\D/g, ''); //เหลือแต่ตัวเลข
                                 if (value.length != 10) {
@@ -724,11 +725,11 @@ const initMsgOrder = (txt) => {
             data.bank = data.banks ? data.banks.map(bank => {
                 let checkBank = false;
                 if (bank.name.indexOf('COD') > -1) {
-                    if (['F'].indexOf(data.name.substr(0, 1)) > -1) {
+                    if (['F', 'K'].indexOf(data.name.substr(0, 1)) > -1) {
                         checkBank = true;
                     }
                 } else {
-                    if (['F'].indexOf(data.name.substr(0, 1)) > -1) {
+                    if (['F', 'K', 'M'].indexOf(data.name.substr(0, 1)) > -1) {
                         checkBank = true;
                     }
                 }
