@@ -188,7 +188,7 @@ export class ReportPage extends React.Component {
                                         </div>
                                     </td>
                                 </tr>
-                                {['stock', 'owner'].indexOf(this.state.auth.role) > -1 && (
+                                {['owner'].indexOf(this.state.auth.role) > -1 && (
                                     <tr>
                                         <td className="has-text-centered">4</td>
                                         <td className="has-text-centered">
