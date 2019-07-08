@@ -16,6 +16,7 @@ export class StockPage extends React.Component {
             amount: 0,
             amount2: 0,
             cost: 0,
+            sale: 0,
             alert: 0,
             action: false,
             isLoading: '',
@@ -23,7 +24,8 @@ export class StockPage extends React.Component {
             filterType: '',
             types: props.types,
             typeId: '',
-            typeName: ''
+            typeName: '',
+            showCost: false && props.auth.role == 'owner'
         }
         this.props.startGetStock();
     }
@@ -74,6 +76,16 @@ export class StockPage extends React.Component {
             console.log(cost)
         }
     }
+    onSaleChange = (e) => {
+        const sale = e.target.value.replace(/\D/g, '');
+        if (!isNaN(sale)) {
+            this.setState({
+                sale: Number(sale)
+            })
+        } else {
+            console.log(sale)
+        }
+    }
     // onAmountChange = (e) => {
     //     const amount = e.target.value.replace(/\D/g, '');
     //     if (!isNaN(amount)) {
@@ -117,6 +129,7 @@ export class StockPage extends React.Component {
                 unit: this.state.unit,
                 // amount: this.state.amount,
                 cost: this.state.cost,
+                sale: this.state.sale,
                 alert: this.state.alert,
                 typeId: this.state.typeId,
                 typeName: this.state.typeName
@@ -160,6 +173,10 @@ export class StockPage extends React.Component {
         const type = this.state.types.find(f => f.typeId == typeId)
         this.setState({ typeId, typeName: type ? type.typeName : '' })
     }
+    onShowCostChange = (e) => {
+        const showCost = !!e.target.checked && this.state.auth.role == 'owner'
+        this.setState({ showCost })
+    }
     render() {
         let sumAmount = 0;
         return (
@@ -179,7 +196,8 @@ export class StockPage extends React.Component {
                                             name={this.state.id}
                                             onChange={this.onFilterTypeChange}
                                             value={this.state.filterType}>
-                                            <option value="">ทั้งหมด</option>
+                                            <option value="ALL">ทั้งหมด</option>
+                                            <option value="">ไม่มีประเภท</option>
                                             {this.state.types.length > 0 &&
                                                 this.state.types.map(type => {
                                                     return <option key={type.typeId} value={type.typeId}>{type.typeId + ' : ' + type.typeName}</option>
@@ -191,13 +209,21 @@ export class StockPage extends React.Component {
                             </div>
                         </div>
                         <div className="leve-right">
-                            <div className="field">
-                                <div className="control">
+                            <span className="level">
+                                {this.state.auth.role == 'owner' &&
+                                    <span className="level-item">
+                                        <label className="checkbox"><input type="checkbox" onChange={this.onShowCostChange} />
+                                            {/* {this.state.showCost.toString()} */}
+                                            ต้นทุน
+                                        </label>
+                                    </span>
+                                }
+                                <span className="level-item">
                                     <input className="input has-text-centered" type="text" placeholder="จำนวน"
                                         value={this.state.filter}
                                         onChange={this.onFilterChange} />
-                                </div>
-                            </div>
+                                </span>
+                            </span>
                         </div>
                     </div>
 
@@ -209,14 +235,15 @@ export class StockPage extends React.Component {
                                 <th className="has-text-left">รหัส</th>
                                 <th className="has-text-left">ชื่อสินค้า</th>
                                 <th className="has-text-left">หน่วยนับ</th>
-                                {this.state.auth.role == 'owner' && (<th className="has-text-right">ต้นทุน</th>)}
+                                <th className="has-text-right">ราคาขาย</th>
+                                {this.state.showCost && (<th className="has-text-right">ต้นทุน</th>)}
                                 {this.state.auth.role == 'owner' && (<th className="has-text-right">แจ้งเตือน</th>)}
                                 <th className="has-text-right">คงเหลือ</th>
                                 {this.state.auth.role == 'owner' && (< th className="has-text-right">จัดการ</th>)}
                             </tr>
                         </thead>
                         <tbody>
-                            {this.state.stock.filter(f => (f.amount <= Number(this.state.filter) || this.state.filter == '') && (f.typeId == this.state.filterType || this.state.filterType == ''))
+                            {this.state.stock.filter(f => (f.amount <= Number(this.state.filter) || this.state.filter == '') && (f.typeId == this.state.filterType || this.state.filterType == 'ALL'))
                                 .map((st, i) => {
                                     sumAmount += st.amount
                                     // if (this.state.id !== st.id) {
@@ -277,8 +304,20 @@ export class StockPage extends React.Component {
                                                 )
                                             }
                                         </td>
-
-                                        {this.state.auth.role == 'owner' && (
+                                        <td className="has-text-right">
+                                            {this.state.id !== st.id || this.state.action == 'stock' ? st.sale
+                                                : (this.state.action == 'edit' &&
+                                                    <div className="control">
+                                                        <input type="text" name={this.state.id}
+                                                            className="input is-rounded has-text-left is-4"
+                                                            value={this.state.sale}
+                                                            onChange={this.onSaleChange}
+                                                        />
+                                                    </div>
+                                                )
+                                            }
+                                        </td>
+                                        {this.state.showCost && (
                                             < td className="has-text-right">
                                                 {this.state.id !== st.id || this.state.action == 'stock' ? Money(st.cost, 0)
                                                     : (this.state.action == 'edit' &&
@@ -383,131 +422,14 @@ export class StockPage extends React.Component {
                                                 ))
                                         )}
                                     </tr>;
-                                    // } else {
-                                    //     return <tr key={st.id}>
-                                    //         <td className="has-text-left">{i + 1}</td>
-                                    //         <td className="has-text-left">{st.id}</td>
-                                    //         <td className="has-text-left">
-                                    //             <div className="control">
-                                    //                 <input type="text" name={this.state.id}
-                                    //                     className="input is-rounded has-text-left is-4"
-                                    //                     value={this.state.name}
-                                    //                     onChange={this.onNameChange}
-                                    //                 />
-                                    //             </div>
-                                    //         </td>
-                                    //         <td className="has-text-left">
-                                    //             <div className="control">
-                                    //                 <input type="text" name={this.state.id}
-                                    //                     className="input is-rounded has-text-left"
-                                    //                     value={this.state.unit}
-                                    //                     onChange={this.onUnitChange}
-                                    //                 />
-                                    //             </div>
-                                    //         </td>
-                                    //         <td className="has-text-right">
-                                    //             <div className="control">
-                                    //                 <input type="text" name={this.state.id}
-                                    //                     className="input is-rounded has-text-right"
-                                    //                     onFocus={this.handleSelectAll}
-                                    //                     value={Money(this.state.cost, 0)}
-                                    //                     onChange={this.onCostChange}
-                                    //                 />
-                                    //             </div>
-                                    //         </td>
-                                    //         <td className="has-text-right">
-                                    //             <div className="control">
-                                    //                 <input type="text" name={this.state.id}
-                                    //                     className="input is-rounded has-text-right"
-                                    //                     onFocus={this.handleSelectAll}
-                                    //                     value={Money(this.state.alert, 0)}
-                                    //                     onChange={this.onAlertChange}
-                                    //                 />
-                                    //             </div>
-                                    //         </td>
-                                    //         <td className="has-text-right">
-                                    //             <div className="control">
-                                    //                 <input type="text" name={this.state.id}
-                                    //                     className="input is-rounded has-text-right"
-                                    //                     onFocus={this.handleSelectAll}
-                                    //                     value={Money(this.state.amount, 0)}
-                                    //                     onChange={this.onAmountChange}
-                                    //                 />
-                                    //             </div>
-                                    //         </td>
-                                    //         <td className="has-text-right">
-                                    //             <div className="field is-grouped">
-                                    //                 <p className="control">
-                                    //                     <a className={`button is-link ${this.state.isLoading}`}
-                                    //                         onClick={this.onUpdateClick}>
-                                    //                         บันทึก
-                                    //                     </a>
-                                    //                 </p>
-                                    //                 <p className="control">
-                                    //                     <a className={`button ${this.state.isLoading}`}
-                                    //                         onClick={() => { this.onActionClick(false, '') }}>
-                                    //                         ยกเลิก
-                                    //                     </a>
-                                    //                 </p>
-                                    //                 <p className="control">
-                                    //                     <a className={`button is-danger ${this.state.isLoading}`}
-                                    //                         onClick={this.onDeleteClick}>
-                                    //                         ลบ
-                                    //                     </a>
-                                    //                 </p>
-                                    //             </div>
-                                    //         </td>
-                                    //     </tr>;
-                                    // }
 
-                                    {/*((this.state.id !== st.id) && this.state.auth.role == 'owner') && (
-                                        <td className="has-text-right">
-                                            <button
-                                                className="button is-small"
-                                                onClick={() => { this.onActionClick(true, st.id) }}>
-                                                ปรับสต็อก
-                                        </button>
-                                        </td>
-                                    )}
-                                    { {((this.state.id === st.id) && this.state.auth.role == 'owner') && (
-                                        <td className="has-text-right">
-                                            <div className="field has-addons has-addons-right">
-                                                <div className="control">
-                                                    <a className="delete is-default is-larg"
-                                                        onClick={() => { this.onActionClick(false, '') }}>
-                                                        ปิด
-                                                    </a>
-                                                </div>
-                                            </div>
-                                            <div className="field has-addons has-addons-right">
-                                                <div className="control">
-                                                    <button className={`button is-success ${this.state.isLoading}`}
-                                                        onClick={() => { this.onStockClick('plus') }}>
-                                                        +</button>
-                                                </div>
-                                                <div className="control">
-                                                    <input type="text" name={this.state.id}
-                                                        className="input is-rounded has-text-right"
-                                                        onFocus={this.handleSelectAll}
-                                                        value={Money(this.state.amount, 0)}
-                                                        onChange={this.onStockChange}
-                                                    />
-                                                </div>
-                                                <div className="control">
-                                                    <button className={`button is-danger ${this.state.isLoading}`}
-                                                        onClick={() => { this.onStockClick('minus') }}>
-                                                        -</button>
-                                                </div>
 
-                                            </div>
-                                        </td>
-                                    )} */}
 
                                 })
                             }
                             <tr>
-                                <td colSpan={7}>รวม</td>
-                                <td className="has-text-right">{Money(sumAmount,0)}</td>
+                                <td colSpan={this.state.auth.role == 'owner' ? (this.state.showCost ? 8 : 7) : 5}>รวม</td>
+                                <td className="has-text-right">{Money(sumAmount, 0)}</td>
                                 <td></td>
                             </tr>
                         </tbody>
