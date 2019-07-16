@@ -1,16 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
-// var fs = require('fs');
-// var nodeModules = {};
-// fs.readdirSync('node_modules')
-//     .filter(function (x) {
-//         return ['.bin'].indexOf(x) === -1;
-//     })
-//     .forEach(function (mod) {
-//         nodeModules[mod] = 'commonjs ' + mod;
-//     });
-// const nodeExternals = require('webpack-node-externals');
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 if (process.env.NODE_ENV === 'test') {
