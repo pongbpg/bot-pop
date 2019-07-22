@@ -16,6 +16,7 @@ import EmailsPage from '../components/manage/emails/IndexPage';
 import TeamsPage from '../components/manage/teams/IndexPage';
 import EmailPage from '../components/manage/emails/EditPage';
 import PostsPage from '../components/widget/PostsPage';
+import PopPage from '../components/sales/PopPage';
 import NotFoundPage from '../components/NotFoundPage';
 import PrivateRoute from './PrivateRoute';
 import PublicRoute from './PublicRoute';
@@ -28,6 +29,7 @@ const AppRouter = () => (
       <Switch>
         <Route path="/" component={TrackingPage} exact={true} />
         <PublicRoute path="/login" component={LoginPage} exact={true} />
+        <Route path="/product/pop" component={PopPage} exact={true} />
         <PrivateRoute path="/home" component={HomePage} exact={true} />
         <PrivateRoute path="/orders" component={OrderPage} exact={true} />
         <PrivateRoute path="/orders/edit" component={TrackEditPage} exact={true} />

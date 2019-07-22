@@ -7,7 +7,7 @@ import { startListOrders } from './actions/orders';
 import { startListPages } from './actions/pages';
 import AppRouter, { history } from './routers/AppRouter';
 import configureStore from './store/configureStore';
-
+import './styles/styles.scss';
 import 'bulma/css/bulma.css'
 import 'react-datepicker/dist/react-datepicker.css';
 import { auth } from './firebase/firebase';
@@ -34,7 +34,11 @@ ReactDOM.render(<LoadingPage />, document.getElementById('app'));
 const logOut = () => {
   store.dispatch(logout());
   renderApp();
-  history.push('/');
+  if (history.location.pathname.indexOf('product') > -1) {
+    // history.push('/' + history.location.pathname);
+  } else {
+    history.push('/');
+  }
 }
 
 auth.onAuthStateChanged((user) => {
