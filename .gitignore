@@ -1,6 +1,5 @@
 node_modules/
 public/dist/
-public/images/
 .env.test
 .env.development
 server/admin.json
