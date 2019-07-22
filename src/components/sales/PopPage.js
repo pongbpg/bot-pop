@@ -5,7 +5,7 @@ import Money from '../../selectors/money';
 import KrFlag from './KrFlag';
 import moment from 'moment';
 import ReactPixel from 'react-facebook-pixel';
-import queryString from 'query-string';
+// import queryString from 'query-string';
 ReactPixel.init('383410062281822');
 moment.locale('th');
 export class PopPage extends React.Component {
@@ -16,7 +16,7 @@ export class PopPage extends React.Component {
     this.state = {
       customer: { name: '', tel: '', addr: '', email: '' },
       errors: { name: undefined, tel: undefined, addr: undefined, email: undefined },
-      params: queryString.parse(props.location.search),
+      // params: queryString.parse(props.location.search),
     };
   }
   componentWillReceiveProps(nextProps) {
