@@ -198,7 +198,7 @@ export class PopPage extends React.Component {
                     </div>
                   </div>
 
-               
+
                   <div className="field is-grouped">
                     <div className="control">
                       <button className="button is-link">Submit</button>
