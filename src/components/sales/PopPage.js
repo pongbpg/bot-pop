@@ -1,5 +1,6 @@
 import React from 'react';
 // import { Link } from 'react-router-dom';
+import axios from 'axios'
 import { connect } from 'react-redux';
 import Money from '../../selectors/money';
 import KrFlag from './KrFlag';
@@ -179,22 +180,18 @@ export class PopPage extends React.Component {
     จำนวนสินค้า: ${pd.amount} (${pd.percent}%)
     ยอดเก็บเงิน: ${pd.price2}
     `
-    fetch('https://notify-api.line.me/api/notify', {
-      method: 'POST', // *GET, POST, PUT, DELETE, etc.
-      mode: 'cors', // no-cors, cors, *same-origin
-      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: 'same-origin', // include, *same-origin, omit
-      headers: {
-        'Content-Type': 'application/json',
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization':'Bearer 936TgN16SDMyffpP5Nsk2Dp4asHvbZ3RRQvdXeEXDxp'
-      },
-      redirect: 'follow', // manual, *follow, error
-      referrer: 'no-referrer', // no-referrer, *client
-      body: JSON.stringify({message}), // body data type must match "Content-Type" header
-    })
-      .then(response => response.json())
-      .then(result => console.log(reulst))
+
+    axios.post('https://notify-api.line.me/api/notify', { message: message },
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': 'Bearer 936TgN16SDMyffpP5Nsk2Dp4asHvbZ3RRQvdXeEXDxp'
+        }
+      })
+      .then(result => {
+        console.log(result)
+      })
+
   }
   disableSubmit = () => {
     const err = Object.keys(this.state.customer)
