@@ -4,10 +4,11 @@ import axios from 'axios'
 import { connect } from 'react-redux';
 import Money from '../../selectors/money';
 import KrFlag from './KrFlag';
+import { FaHandORight, FaHandOLeft } from 'react-icons/lib/fa'
 import moment from 'moment';
 import ReactPixel from 'react-facebook-pixel';
 ReactPixel.init('383410062281822');
-// ReactPixel.pageView();
+ReactPixel.trackCustom('web', { product: 'HR', type: 'view', seconds: 0 })
 moment.locale('th');
 export class PopPage extends React.Component {
   constructor(props) {
@@ -24,13 +25,26 @@ export class PopPage extends React.Component {
         // email: { value: '', msg: undefined },
       },
       // params: queryString.parse(props.location.search),
-      time: {}, seconds: 600, interest: false
+      params: this.queryString(props.location.search),
+      time: {}, seconds: 600, interest: false, buy: false, loading: false
     };
     this.timer = 0;
     this.startTimer = this.startTimer.bind(this);
     this.countDown = this.countDown.bind(this);
     this.amountChange = this.amountChange.bind(this);
     this.startTimer();
+  }
+  queryString(string) {
+    let query = {};
+    const keys = string.replace('?', '').split('&');
+    if (keys.length > 0) {
+      for (let i = 0; i < keys.length; i++) {
+        if (!query.hasOwnProperty(keys[i].split('=')[0]))
+          query[keys[i].split('=')[0]] = keys[i].split('=')[1]
+      }
+    }
+    // console.log(query)
+    return query;
   }
   // componentWillReceiveProps(nextProps) {
   //   // if (nextProps.searchList != this.state.searchList) {
@@ -66,7 +80,6 @@ export class PopPage extends React.Component {
     return obj;
   }
 
-
   startTimer() {
     if (this.timer == 0 && this.state.seconds > 0) {
       this.timer = setInterval(this.countDown, 1000);
@@ -80,6 +93,15 @@ export class PopPage extends React.Component {
       time: this.secondsToTime(seconds),
       seconds: seconds,
     });
+    if (600 - seconds == 15) {
+      ReactPixel.trackCustom('web', { product: 'HR', type: 'view', seconds: 15 })
+    }
+    if (600 - seconds == 30) {
+      ReactPixel.trackCustom('web', { product: 'HR', type: 'view', seconds: 30 })
+    }
+    if (600 - seconds == 60) {
+      ReactPixel.trackCustom('web', { product: 'HR', type: 'view', seconds: 60 })
+    }
     // Check if we're at zero.
     if (seconds == 0) {
       clearInterval(this.timer);
@@ -160,37 +182,57 @@ export class PopPage extends React.Component {
 
   }
   onInterestClick = () => {
-    ReactPixel.trackCustom('interest', { product: 'pop' })
-    this.setState({ interest: true });
+    ReactPixel.trackCustom('web', { product: 'HR', type: 'interest' })
+    this.setState({ interest: true, buy: false });
     setTimeout(() => {
       this.formSale.focus();
     }, 300)
   }
   onCancelForm = () => {
-    this.setState({ interest: false })
+    this.setState({ interest: false, buy: false })
   }
   onSubmitForm = (e) => {
     e.preventDefault();
     const cus = this.state.customer;
     const pd = this.state.product;
-    const message = `รายการสั่งซื้อจาก ${this.state.from}
-    ชื่อลูกค้า: ${cus.name.value}
-    เบอร์โทร: ${cus.tel.value}
-    ที่อยู่: ${cus.addr.value}
-    จำนวนสินค้า: ${pd.amount} (${pd.percent}%)
-    ยอดเก็บเงิน: ${pd.price2}
-    `
-
-    axios.post('https://notify-api.line.me/api/notify', { message: message },
-      {
+    const message = `รายการสั่งซื้อจาก ${this.state.params.from}\nลูกค้า: ${cus.name.value}\nโทร: ${cus.tel.value}\nที่อยู่: ${cus.addr.value}\nจำนวน: ${pd.amount} ขวด\nยอดเงิน: ${pd.price2} บาท\nPercent: ${pd.percent}`;
+    if (confirm('ลูกค้ายืนยันการสั่งซื้อสินค้า')) {
+      this.setState({ interest: false, buy: true, loading: true })
+      ReactPixel.trackCustom('purchase', { product: 'HR', amount: pd.amount })
+      ReactPixel.trackCustom('web', { product: 'HR', type: 'buy', amount: pd.amount  })
+      axios({
+        method: 'post',
+        url: 'https://cors-anywhere.herokuapp.com/https://notify-api.line.me/api/notify',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': 'Bearer 936TgN16SDMyffpP5Nsk2Dp4asHvbZ3RRQvdXeEXDxp'
+          'content-type': 'application/x-www-form-urlencoded',
+          'authorization': 'Bearer 936TgN16SDMyffpP5Nsk2Dp4asHvbZ3RRQvdXeEXDxp'
+        },
+        data: 'message=' + message
+      }).then(result => {
+        if (result.status == 200) { //success
+          this.setState({
+            loading: false,
+            msg: ''
+          })
+        } else {
+          this.setState({
+            loading: false,
+            buy: false,
+            interest: true,
+            msg: result.message
+          })
         }
+      }).catch(err => {
+        this.setState({
+          loading: false,
+          buy: false,
+          interest: true,
+          msg: err.message
+        })
       })
-      .then(result => {
-        console.log(result)
-      })
+    }
+
+
 
   }
   disableSubmit = () => {
@@ -211,7 +253,7 @@ export class PopPage extends React.Component {
                 เวลาโปรโมชั่น {this.state.time.m}:{this.state.time.s} นาที
                 &nbsp;
                 {this.state.seconds > 0
-                  ? <a className="button is-success is-rounded" href="#interest">รับส่วนลด!</a>
+                  ? <a className="button is-success is-rounded" href="#interest"><FaHandORight />รับส่วนลด!</a>
                   : <a className="button is-danger is-rounded" onClick={this.onInjuryTime}>ต่อเวลา!</a>
                 }
 
@@ -313,64 +355,29 @@ export class PopPage extends React.Component {
                   <img src="../../images/pop/9.jpg" />
                 </div>
               </div>
-              <div className="columns is-centered" style={{ marginTop: 30 }}>
-                <div className="column">
-                  <a className="button is-large is-link" disabled={this.state.interest} onClick={this.onInterestClick} id="interest">สั่งซื้อสินค้า กดปุ่มนี้!</a>
+              {(this.state.interest == false && this.state.buy == false) &&
+                <div className="columns is-centered" style={{ marginTop: 30 }}>
+                  <div className="column">
+                    <a className="button is-large is-link" onClick={this.onInterestClick} id="interest">
+                      <FaHandORight />สั่งซื้อสินค้า กดปุ่มนี้!<FaHandOLeft />
+                    </a>
+                  </div>
                 </div>
-              </div>
-              {this.state.interest &&
+              }
+              {(this.state.interest || this.state.loading == true) &&
                 <div className="columns" style={{ marginTop: 20 }}>
                   <div className="column" >
                     <h2 className="title is-spaced" >ข้อมูลสำหรับจัดส่งสินค้า</h2>
                     <form className="container has-text-left" style={{ marginTop: 30 }} >
-                      <div className="columns">
-                        <div className="column">
-                          <div className="field">
-                            <label className="label">จำนวนสินค้า(ขวด)<span className="has-text-danger">*</span></label>
-                            <div className="control">
-                              <input className={`input ${this.state.product.amount <= 0 ? 'is-danger' : 'is-success'}`}
-                                type="number" placeholder="จำนวน" name="amount"
-                                value={this.state.product.amount} onChange={this.onAmountChange}
-                                ref={(input) => { this.formSale = input; }} />
-                            </div>
-                            <p className={`help ${this.state.product.amount <= 0 ? 'is-danger' : 'is-success'}`}>
-                              {this.state.product.amount <= 0 && 'จำนวนต้องมากกว่า 1 ขวด'}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="column">
-                          <div className="field">
-                            <label className="label">ราคาเต็ม</label>
-                            {this.state.product.price1 > 0
-                              ? <del className="control title has-text-weight-bold has-text-danger"> {' ' + Money(this.state.product.price1, 0) + ' '}</del>
-                              : <div className="control title has-text-weight-bold">0</div>
-                            }
-                          </div>
-                        </div>
-                        <div className="column">
-                          <div className="field">
-                            <label className="label">ส่วนลด</label>
-                            <div className="control title has-text-success has-text-weight-bold">
-                              {this.state.product.percent}%
-                          </div>
-                          </div>
-                        </div>
-                        <div className="column">
-                          <div className="field">
-                            <label className="label">ยอดเก็บเงินปลายทาง</label>
-                            <div className="control title has-text-weight-bold has-text-primary">
-                              {Money(this.state.product.price2, 0)} บาท
-                          </div>
-                          </div>
-                        </div>
-                      </div>
+
 
                       <div className="field">
                         <label className="label">ชื่อผู้รับ<span className="has-text-danger">*</span></label>
                         <div className="control">
                           <input className={`input ${this.state.customer.name.msg ? 'is-danger' : 'is-success'}`}
                             type="text" placeholder="ชื่อ - นามสกุล" name="name"
-                            value={this.state.customer.name.value} onChange={this.onCustomerChange} />
+                            value={this.state.customer.name.value} onChange={this.onCustomerChange}
+                            ref={(input) => { this.formSale = input; }} />
                         </div>
                         <p className={`help ${this.state.customer.name.msg ? 'is-danger' : 'is-success'}`}>{this.state.customer.name.msg}</p>
                       </div>
@@ -410,20 +417,71 @@ export class PopPage extends React.Component {
                           </label>
                         </div>
                       </div> */}
-
+                      <div className="columns">
+                        <div className="column">
+                          <div className="field">
+                            <label className="label">จำนวนสินค้า(ขวด)<span className="has-text-danger">*</span></label>
+                            <div className="control">
+                              <input className={`input ${this.state.product.amount <= 0 ? 'is-danger' : 'is-success'}`}
+                                type="number" placeholder="จำนวน" name="amount"
+                                value={this.state.product.amount} onChange={this.onAmountChange} />
+                            </div>
+                            <p className={`help ${this.state.product.amount <= 0 ? 'is-danger' : 'is-success'}`}>
+                              {this.state.product.amount <= 0 && 'จำนวนต้องมากกว่า 1 ขวด'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="column">
+                          <div className="field">
+                            <label className="label">ราคาเต็ม</label>
+                            {this.state.product.price1 > 0
+                              ? <del className="control title has-text-weight-bold has-text-danger"> {' ' + Money(this.state.product.price1, 0) + ' '}</del>
+                              : <div className="control title has-text-weight-bold">0</div>
+                            }
+                          </div>
+                        </div>
+                        <div className="column">
+                          <div className="field">
+                            <label className="label">ส่วนลด</label>
+                            <div className="control title has-text-success has-text-weight-bold">
+                              {this.state.product.percent}%
+                          </div>
+                          </div>
+                        </div>
+                        <div className="column">
+                          <div className="field">
+                            <label className="label">ยอดเก็บเงินปลายทาง</label>
+                            <div className="control title has-text-weight-bold has-text-primary">
+                              {Money(this.state.product.price2, 0)} บาท
+                          </div>
+                          </div>
+                        </div>
+                      </div>
 
                       <div className="field is-grouped">
                         <div className="control">
-                          <button className="button is-link"
+                          <button className={`button is-link ${this.state.loading && 'is-loading'}`}
                             disabled={this.disableSubmit()}
-                            onClick={this.onSubmitForm}>สั่งซื้อสินค้า</button>
+                            onClick={this.onSubmitForm}><FaHandORight />สั่งซื้อสินค้า</button>
                         </div>
                         <div className="control">
                           <button className="button is-text" onClick={this.onCancelForm}>ยกเลิก</button>
                         </div>
+                        <p className='help is-danger' >{this.state.msg}</p>
                       </div>
                     </form>
                   </div>
+                </div>
+              }
+              {(this.state.buy && this.state.interest == false && this.state.loading == false) &&
+                < div className="tile is-parent">
+                  <article className="tile is-child notification is-info">
+                    <p className="title has-text-white">การสั่งซื้อสินค้าเสร็จสมบูรณ์</p>
+                    <p className="title has-text-white">กรุณารอรับโทรศัพท์จากทางเจ้าหน้าที่</p>
+                    <p className="subtitle has-text-white" style={{ paddingTop: 20 }}>คุณ{this.state.customer.name.value} จะได้รับสินค้าภายใน 2-3 วันทำการค่ะ</p>
+
+                    <button className="button" onClick={this.onInterestClick}>ปิดหน้าต่างนี้</button>
+                  </article>
                 </div>
               }
             </div>
