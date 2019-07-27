@@ -6,6 +6,7 @@ import KrFlag from './KrFlag';
 import moment from 'moment';
 import ReactPixel from 'react-facebook-pixel';
 ReactPixel.init('383410062281822');
+// ReactPixel.pageView();
 moment.locale('th');
 export class PopPage extends React.Component {
   constructor(props) {
@@ -14,11 +15,15 @@ export class PopPage extends React.Component {
     // console.log(queryString.parse(props.location.search))
     this.state = {
       ppu: 690,
-      product: { amount: 0, percent: 0, price1: 0, price2: 0 },
-      customer: { name: '', tel: '', addr: '', email: '', amount: 0, percent: 0, price1: 0, price2: 0 },
-      errors: { name: undefined, tel: undefined, addr: undefined, email: undefined, amount: undefined },
+      product: { amount: 1, percent: 0, price1: 0, price2: 0 },
+      customer: {
+        name: { value: '', msg: 'ต้องมีอย่างน้อย 2 ตัวอักษร' },
+        tel: { value: '', msg: 'ต้องเป็นเบอร์มือถือเท่านั้น' },
+        addr: { value: '', msg: 'ต้องมีรหัสไปรษณีย์' },
+        // email: { value: '', msg: undefined },
+      },
       // params: queryString.parse(props.location.search),
-      time: {}, seconds: 300
+      time: {}, seconds: 600, interest: false
     };
     this.timer = 0;
     this.startTimer = this.startTimer.bind(this);
@@ -26,10 +31,21 @@ export class PopPage extends React.Component {
     this.amountChange = this.amountChange.bind(this);
     this.startTimer();
   }
-  componentWillReceiveProps(nextProps) {
-    // if (nextProps.searchList != this.state.searchList) {
-    //   this.setState({ searchList: nextProps.searchList });
-    // }
+  // componentWillReceiveProps(nextProps) {
+  //   // if (nextProps.searchList != this.state.searchList) {
+  //   //   this.setState({ searchList: nextProps.searchList });
+  //   // }
+  // }
+  componentDidMount() {
+    let timeLeftVar = this.secondsToTime(this.state.seconds);
+    this.setState({ time: timeLeftVar });
+    this.amountChange(1);
+  }
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.seconds > prevState.seconds) {
+      this.startTimer();
+      this.amountChange(this.state.product.amount);
+    }
   }
 
   secondsToTime(secs) {
@@ -49,10 +65,6 @@ export class PopPage extends React.Component {
     return obj;
   }
 
-  componentDidMount() {
-    let timeLeftVar = this.secondsToTime(this.state.seconds);
-    this.setState({ time: timeLeftVar });
-  }
 
   startTimer() {
     if (this.timer == 0 && this.state.seconds > 0) {
@@ -67,7 +79,6 @@ export class PopPage extends React.Component {
       time: this.secondsToTime(seconds),
       seconds: seconds,
     });
-
     // Check if we're at zero.
     if (seconds == 0) {
       clearInterval(this.timer);
@@ -79,25 +90,30 @@ export class PopPage extends React.Component {
   }
   onCustomerChange = (e) => {
     const k = e.target.name;
-    const v = e.target.value;
-    const msg = this.onValid(k, v);
+    const value = e.target.value;
+    const msg = this.onValid(k, value);
+
     this.setState({
       customer: {
         ...this.state.customer,
-        [k]: v
+        [k]: {
+          value,
+          msg
+        }
       },
-      errors: {
-        ...this.state.errors,
-        [k]: msg
-      }
     })
   }
   onAmountChange = (e) => {
     const amount = e.target.value;
     this.amountChange(amount);
   }
+  onInjuryTime = () => {
+    this.timer = 0;
+    this.setState({ seconds: 300 });
+  }
   amountChange = (amount) => {
     const amountCheck = isNaN(amount) || Number(amount) <= 0;
+    // console.log(amountCheck)
     const price1 = amount * this.state.ppu;
     let percent = 0;
     let price2 = 0;
@@ -112,33 +128,21 @@ export class PopPage extends React.Component {
         }
       }
       price2 = price1 - (price1 * (percent / 100))
-      this.setState({
-        product: {
-          amount, percent, price1, price2
-        }, errors: {
-          ...this.state.errors,
-          amount: undefined
-        }
-      })
-    } else {
-      this.setState({
-        product: {
-          amount, percent, price1, price2
-        }, errors: {
-          ...this.state.errors,
-          amount: 'จำนวนสินค้าต้องมากกว่า 0 ขวด'
-        }
-      })
     }
+    this.setState({
+      product: {
+        amount, percent, price1, price2
+      }
+    })
   }
   onValid = (k, v) => {
     switch (k) {
       case 'name':
-        return v.length < 2 ? 'ชื่อผู้รับต้องมีอย่างน้อย 2 ตัวอักษร' : undefined;
+        return v.length < 2 ? 'ต้องมีอย่างน้อย 2 ตัวอักษร' : undefined;
       case 'tel':
-        return v.replace(/-/g, '').match(/[0-9]{10}/g) == null ? 'เบอร์โทรต้องมีเพียงเลข 10 หลัก' : undefined;
+        return v.replace(/-/g, '').match(/[0-9]{10}/g) == null ? 'ต้องเป็นเบอร์มือถือเท่านั้น' : undefined;
       case 'addr':
-        return v.match(/[0-9]{5}/g) == null ? 'ที่อยู่ต้องมีรหัสไปรษณีย์' : undefined;
+        return v.match(/[0-9]{5}/g) == null ? 'ต้องมีรหัสไปรษณีย์' : undefined;
       case 'email':
         return !ValidateEmail(v) && v != '' ? 'Email ไม่ถูกต้อง' : undefined;
       default:
@@ -154,6 +158,49 @@ export class PopPage extends React.Component {
     }
 
   }
+  onInterestClick = () => {
+    ReactPixel.trackCustom('interest', { product: 'pop' })
+    this.setState({ interest: true });
+    setTimeout(() => {
+      this.formSale.focus();
+    }, 300)
+  }
+  onCancelForm = () => {
+    this.setState({ interest: false })
+  }
+  onSubmitForm = (e) => {
+    e.preventDefault();
+    const cus = this.state.customer;
+    const pd = this.state.product;
+    const message = `รายการสั่งซื้อจาก ${this.state.from}
+    ชื่อลูกค้า: ${cus.name.value}
+    เบอร์โทร: ${cus.tel.value}
+    ที่อยู่: ${cus.addr.value}
+    จำนวนสินค้า: ${pd.amount} (${pd.percent}%)
+    ยอดเก็บเงิน: ${pd.price2}
+    `
+    fetch('https://notify-api.line.me/api/notify', {
+      method: 'POST', // *GET, POST, PUT, DELETE, etc.
+      mode: 'cors', // no-cors, cors, *same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization':'Bearer 936TgN16SDMyffpP5Nsk2Dp4asHvbZ3RRQvdXeEXDxp'
+      },
+      redirect: 'follow', // manual, *follow, error
+      referrer: 'no-referrer', // no-referrer, *client
+      body: JSON.stringify({message}), // body data type must match "Content-Type" header
+    })
+      .then(response => response.json())
+      .then(result => console.log(reulst))
+  }
+  disableSubmit = () => {
+    const err = Object.keys(this.state.customer)
+      .filter(key => this.state.customer[key].msg != undefined)
+    return err.length > 0 || this.state.product.amount <= 0
+  }
   render() {
     return (
       <section className="fontGG">
@@ -161,22 +208,18 @@ export class PopPage extends React.Component {
           <div className="container">
             <div className="navbar-brand">
               <span className="navbar-item" href="/product/pop">
-                <img src="../../images/popp.png" alt="P.O.P." />&nbsp;
+                <img src="../../images/popp.png" width="50" alt="P.O.P." />
               </span>
-              <span className="navbar-item">โฟมกำจัดขน<KrFlag width="24" /></span>
-              <span className="navbar-item"><a className="button is-success is-rounded" href="#frmSale">รับส่วนลด!</a></span>
+              <span className="navbar-item">
+                เวลาโปรโมชั่น {this.state.time.m}:{this.state.time.s} นาที
+                &nbsp;
+                {this.state.seconds > 0
+                  ? <a className="button is-success is-rounded" href="#interest">รับส่วนลด!</a>
+                  : <a className="button is-danger is-rounded" onClick={this.onInjuryTime}>ต่อเวลา!</a>
+                }
 
+              </span>
             </div>
-            {/*   <div className="navbar-menu" id="navMenu">
-              <div className="navbar-start">
-                 </div>
-            <div className="navbar-end">
-               <a className="navbar-item is-active" href="/mentorship.html">Mentorship</a>
-                <div className="navbar-item is-active"><a className="button is-danger is-outlined is-rounded" href="/contact.html">สั่งซื้อที่นี่</a></div>
-
-            
-              </div> 
-          </div>*/}
           </div>
         </nav>
         <div className="hero is-white has-text-centered" style={{ marginTop: 30 }}>
@@ -184,44 +227,49 @@ export class PopPage extends React.Component {
             <div className="container">
               <div className="columns is-centered">
                 <div className="column">
-                  <h1 className="title is-spaced is-size-1-desktop is-size-2-tablet is-size-3-mobile">ผลิตภัณฑ์โฟมกำจัดขน P.O.P.</h1>
-                  <h2 className="subtitle is-size-4-desktop">นวัตกรรมใหม่จากเกาหลี<KrFlag width="36" /> ใช้งานง่าย</h2>
-                  <h2 className="subtitle is-size-4-desktop">แค่พ่นโฟม 10-15 นาที แล้วล้างน้ำออก</h2>
+                  <h2 className="title is-spaced is-size-1-desktop is-size-2-tablet is-size-4-mobile">ผลิตภัณฑ์โฟมกำจัดขน P.O.P.</h2>
+                  <h4 className="subtitle is-size-4-desktop is-size-5-tablet is-size-6-mobile">นวัตกรรมใหม่จากเกาหลี<KrFlag width="36" /> ใช้งานง่าย</h4>
+                  <h4 className="subtitle is-size-4-desktop is-size-5-tablet is-size-6-mobile">แค่พ่นโฟม 10-15 นาที แล้วล้างน้ำออก</h4>
                 </div>
               </div>
               <div className="columns is-centered">
-                <div className="column is-size-1-desktop is-size-2-tablet is-size-3-mobile">
+                <div className="column is-6-desktop is-8-tablet is-12-mobile">
+                  <img src="../../images/pop/10.jpg" />
+                </div>
+              </div>
+              <div className="columns is-centered">
+                <div className="column is-6-desktop is-8-tablet is-12-mobile">
                   <img src="../../images/pop/1.jpg" />
                 </div>
-                <div className="column is-size-1-desktop is-size-2-tablet is-size-3-mobile">
+                <div className="column is-6-desktop is-8-tablet is-12-mobile">
                   <img src="../../images/pop/2.jpg" />
                 </div>
               </div>
-              <div className="columns is-centered" style={{ marginTop: 30 }}>
+              <div className="columns is-centered" style={{ marginTop: 10 }}>
                 <div className="column">
-                  <h1 className="title is-spaced is-size-1-desktop is-size-2-tablet is-size-3-mobile button is-primary is-rounded has-text-white">คุณสมบัติ และส่วนผสม</h1>
-                  <h2 className="subtitle is-size-4-desktop">1.สินค้ามี อย. ปลอดภัย 100%</h2>
-                  <h2 className="subtitle is-size-4-desktop">2.เนื้อโฟมอ่อนโยน ผิวชุ่มชื้น ไม่ระคายเคือง</h2>
-                  <h2 className="subtitle is-size-4-desktop">3.ขนขึ้นใหม่ 3-4 สัปดาห์ ไม่เป็นตอ</h2>
-                  <h2 className="subtitle is-size-4-desktop">4.ขนาดบรรจุ 180 ml. ใช้ได้ 10-20 ครั้งคุ้มสุดๆ</h2>
+                  <h1 className="title is-spaced is-size-3-desktop is-size-4-tablet is-size-5-mobile has-text-danger">คุณสมบัติ</h1>
+                  <h4 className="subtitle is-size-4-desktop is-size-5-tablet is-size-6-mobile">1.สินค้ามี อย. ปลอดภัย 100%</h4>
+                  <h4 className="subtitle is-size-4-desktop is-size-5-tablet is-size-6-mobile">2.เนื้อโฟมอ่อนโยน ผิวชุ่มชื้น ไม่ระคายเคือง</h4>
+                  <h4 className="subtitle is-size-4-desktop is-size-5-tablet is-size-6-mobile">3.ขนขึ้นใหม่ 3-4 สัปดาห์ ไม่เป็นตอ</h4>
+                  <h4 className="subtitle is-size-4-desktop is-size-5-tablet is-size-6-mobile">4.ขนาดบรรจุ 180 ml. ใช้ได้ 10-20 ครั้งคุ้มสุดๆ</h4>
                 </div>
               </div>
               <div className="columns is-centered">
-                <div className="column is-size-1-desktop is-size-2-tablet is-size-3-mobile">
+                <div className="column is-6-desktop is-8-tablet is-12-mobile">
                   <img src="../../images/pop/3.jpg" />
                 </div>
-                <div className="column is-size-1-desktop is-size-2-tablet is-size-3-mobile">
+                <div className="column is-6-desktop is-8-tablet is-12-mobile">
                   <img src="../../images/pop/4.jpg" />
                 </div>
               </div>
               <div className="columns is-centered" style={{ marginTop: 30 }}>
                 <div className="column">
-                  <h1 className="title is-spaced is-size-1-desktop is-size-2-tablet is-size-3-mobile button is-danger is-rounded has-text-white">วิธีการใช้ และ VDO รีวิว</h1>
+                  <h2 className="title is-spaced is-size-3-desktop is-size-4-tablet is-size-5-mobile has-text-danger">วิธีการใช้ และ VDO รีวิว</h2>
                 </div>
               </div>
               <div className="columns is-centered">
-                <div className="column is-size-1-desktop is-size-2-tablet is-size-3-mobile">
-                  <img src="../../images/pop/5.jpg" style={{ maxWidth: "80%" }} />
+                <div className="column is-6-desktop is-8-tablet is-12-mobile">
+                  <img src="../../images/pop/5.jpg" />
                 </div>
               </div>
               <div className="columns is-centered">
@@ -236,17 +284,17 @@ export class PopPage extends React.Component {
               </div>
               <div className="columns is-centered" style={{ marginTop: 30 }}>
                 <div className="column">
-                  <h1 className="title is-spaced is-size-1-desktop is-size-2-tablet is-size-3-mobile button is-primary is-rounded has-text-white">รีวิวจากลูกค้าที่ใช้จริง</h1>
+                  <h2 className="title is-spaced is-size-3-desktop is-size-4-tablet is-size-5-mobile has-text-danger">รีวิวจากลูกค้าที่ใช้จริง</h2>
                 </div>
               </div>
               <div className="columns is-centered">
-                <div className="column is-size-1-desktop is-size-2-tablet is-size-3-mobile">
+                <div className="column is-6-desktop is-8-tablet is-12-mobile">
                   <img src="../../images/pop/rv1.jpg" />
                   <img src="../../images/pop/rv2.jpg" />
                   <img src="../../images/pop/rv3.jpg" />
                   <img src="../../images/pop/rv4.jpg" />
                 </div>
-                <div className="column is-size-1-desktop is-size-2-tablet is-size-3-mobile">
+                <div className="column is-6-desktop is-8-tablet is-12-mobile">
                   <img src="../../images/pop/rv5.jpg" />
                   <img src="../../images/pop/rv6.jpg" />
                   <img src="../../images/pop/rv7.jpg" />
@@ -255,135 +303,132 @@ export class PopPage extends React.Component {
               </div>
               <div className="columns is-centered" style={{ marginTop: 30 }}>
                 <div className="column">
-                  <h1 className="title is-spaced is-size-1-desktop is-size-2-tablet is-size-3-mobile button is-warning is-rounded has-text-white">จัดส่งสินค้าโดย เคอรี่ฯ</h1>
+                  <h2 className="title is-spaced is-size-3-desktop is-size-4-tablet is-size-5-mobile has-text-danger">จัดส่งสินค้าโดย เคอรี่ฯ</h2>
                 </div>
               </div>
               <div className="columns is-centered">
-                <div className="column is-size-1-desktop is-size-2-tablet is-size-3-mobile">
+                <div className="column is-6-desktop is-8-tablet is-12-mobile">
                   <img src="../../images/pop/6.jpg" />
                   <img src="../../images/pop/7.jpg" />
                 </div>
-                <div className="column is-size-1-desktop is-size-2-tablet is-size-3-mobile" >
+                <div className="column is-6-desktop is-8-tablet is-12-mobile" >
                   <img src="../../images/pop/8.jpg" />
                   <img src="../../images/pop/9.jpg" />
                 </div>
               </div>
-              <div className="columns is-centered" style={{ marginTop: 20 }} id="frmSale">
+              <div className="columns is-centered" style={{ marginTop: 30 }}>
                 <div className="column">
-                  <h1 className="title is-spaced is-size-1-desktop is-size-2-tablet is-size-3-mobile button is-danger is-rounded has-text-white">โปรโมชั่นพิเศษ</h1>
+                  <a className="button is-large is-link" disabled={this.state.interest} onClick={this.onInterestClick} id="interest">สั่งซื้อสินค้า กดปุ่มนี้!</a>
                 </div>
               </div>
-              <div className="columns is-centered">
-                <div className="column is-size-12-desktop is-size-2-tablet is-size-3-mobile">
-                  <img src="../../images/pop/10.jpg" style={{ maxWidth: "80%" }} />
-                </div>
-              </div>
-              <div className="columns is-centered">
-                <div className="column is-size-12-desktop is-size-2-tablet is-size-3-mobile">
-                  ส่วนลดเหลือเวลาเพียง&nbsp;
-                  {this.state.time.m} นาที {this.state.time.s} วินาที
-                </div>
-              </div>
-              <div className="columns" style={{ marginTop: 20 }}>
-                <div className="column" >
-                  {/* <h1 className="title is-spaced is-size-1-desktop is-size-2-tablet is-size-3-mobile" >วิธีสั่งซื้อสินค้า</h1> */}
-                  <form className="container has-text-left" style={{ marginTop: 30 }}>
-                    <div className="columns">
-                      <div className="column">
-                        <div className="field">
-                          <label className="label">จำนวนสินค้า<span className="has-text-danger">*</span></label>
-                          <div className="control">
-                            <input className={`input ${this.state.errors.amount ? 'is-danger' : 'is-success'}`}
-                              type="number" placeholder="ชื่อ - นามสกุล" name="amount"
-                              value={this.state.product.amount} onChange={this.onAmountChange} />
-                          </div>
-                          <p className={`help ${this.state.errors.amount ? 'is-danger' : 'is-success'}`}>{this.state.errors.amount}</p>
-                        </div>
-                      </div>
-                      <div className="column">
-                        <div className="field">
-                          <label className="label">ราคาเต็ม</label>
-                          {this.state.product.price1 > 0
-                            ? <del className="control title has-text-weight-bold has-text-danger"> {' ' + Money(this.state.product.price1, 0) + ' '}</del>
-                            : <div className="control title has-text-weight-bold">0</div>
-                          }
-                        </div>
-                      </div>
-                      <div className="column">
-                        <div className="field">
-                          <label className="label">ส่วนลด</label>
-                          <div className="control title has-text-success has-text-weight-bold">
-                            {this.state.product.percent}%
+              {this.state.interest &&
+                <div className="columns" style={{ marginTop: 20 }}>
+                  <div className="column" >
+                    <h2 className="title is-spaced" >ข้อมูลสำหรับจัดส่งสินค้า</h2>
+                    <form className="container has-text-left" style={{ marginTop: 30 }} >
+                      <div className="columns">
+                        <div className="column">
+                          <div className="field">
+                            <label className="label">จำนวนสินค้า(ขวด)<span className="has-text-danger">*</span></label>
+                            <div className="control">
+                              <input className={`input ${this.state.product.amount <= 0 ? 'is-danger' : 'is-success'}`}
+                                type="number" placeholder="จำนวน" name="amount"
+                                value={this.state.product.amount} onChange={this.onAmountChange}
+                                ref={(input) => { this.formSale = input; }} />
+                            </div>
+                            <p className={`help ${this.state.product.amount <= 0 ? 'is-danger' : 'is-success'}`}>
+                              {this.state.product.amount <= 0 && 'จำนวนต้องมากกว่า 1 ขวด'}
+                            </p>
                           </div>
                         </div>
-                      </div>
-                      <div className="column">
-                        <div className="field">
-                          <label className="label">ยอดเก็บเงินปลายทาง</label>
-                          <div className="control title has-text-weight-bold has-text-primary">
-                            {Money(this.state.product.price2, 0)} บาท
+                        <div className="column">
+                          <div className="field">
+                            <label className="label">ราคาเต็ม</label>
+                            {this.state.product.price1 > 0
+                              ? <del className="control title has-text-weight-bold has-text-danger"> {' ' + Money(this.state.product.price1, 0) + ' '}</del>
+                              : <div className="control title has-text-weight-bold">0</div>
+                            }
+                          </div>
+                        </div>
+                        <div className="column">
+                          <div className="field">
+                            <label className="label">ส่วนลด</label>
+                            <div className="control title has-text-success has-text-weight-bold">
+                              {this.state.product.percent}%
+                          </div>
+                          </div>
+                        </div>
+                        <div className="column">
+                          <div className="field">
+                            <label className="label">ยอดเก็บเงินปลายทาง</label>
+                            <div className="control title has-text-weight-bold has-text-primary">
+                              {Money(this.state.product.price2, 0)} บาท
+                          </div>
                           </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="field">
-                      <label className="label">ชื่อผู้รับ<span className="has-text-danger">*</span></label>
-                      <div className="control">
-                        <input className={`input ${this.state.errors.name ? 'is-danger' : 'is-success'}`}
-                          type="text" placeholder="ชื่อ - นามสกุล" name="name"
-                          value={this.state.customer.name} onChange={this.onCustomerChange} />
+                      <div className="field">
+                        <label className="label">ชื่อผู้รับ<span className="has-text-danger">*</span></label>
+                        <div className="control">
+                          <input className={`input ${this.state.customer.name.msg ? 'is-danger' : 'is-success'}`}
+                            type="text" placeholder="ชื่อ - นามสกุล" name="name"
+                            value={this.state.customer.name.value} onChange={this.onCustomerChange} />
+                        </div>
+                        <p className={`help ${this.state.customer.name.msg ? 'is-danger' : 'is-success'}`}>{this.state.customer.name.msg}</p>
                       </div>
-                      <p className={`help ${this.state.errors.name ? 'is-danger' : 'is-success'}`}>{this.state.errors.name}</p>
-                    </div>
-                    <div className="field">
-                      <label className="label">เบอร์มือถือผู้รับ<span className="has-text-danger">*</span></label>
-                      <div className="control">
-                        <input className={`input ${this.state.errors.tel ? 'is-danger' : 'is-success'}`}
-                          type="text" placeholder="เบอร์มือถือ" name="tel" maxLength="12"
-                          onChange={this.onCustomerChange} value={this.state.customer.tel} />
+                      <div className="field">
+                        <label className="label">เบอร์มือถือผู้รับ<span className="has-text-danger">*</span></label>
+                        <div className="control">
+                          <input className={`input ${this.state.customer.tel.msg ? 'is-danger' : 'is-success'}`}
+                            type="text" placeholder="เบอร์มือถือ" name="tel" maxLength="12"
+                            onChange={this.onCustomerChange} value={this.state.customer.tel.value} />
+                        </div>
+                        <p className={`help ${this.state.customer.tel.msg ? 'is-danger' : 'is-success'}`}>{this.state.customer.tel.msg}</p>
                       </div>
-                      <p className={`help ${this.state.errors.tel ? 'is-danger' : 'is-success'}`}>{this.state.errors.tel}</p>
-                    </div>
-                    <div className="field">
-                      <label className="label">อีเมล์ (ถ้ามี)</label>
-                      <div className="control">
-                        <input className={`input ${this.state.errors.email}`} type="text" placeholder="Email" name="email"
-                          onChange={this.onCustomerChange} value={this.state.customer.email} />
-                      </div>
-                      <p className="help">{this.state.errors.email}</p>
-                    </div>
+                      {/* <div className="field">
+                        <label className="label">อีเมล์ (ถ้ามี)</label>
+                        <div className="control">
+                          <input className={`input ${this.state.errors.email ? 'is-danger' : 'is-success'}`} type="text" placeholder="Email" name="email"
+                            onChange={this.onCustomerChange} value={this.state.customer.email} />
+                        </div>
+                        <p className={`help ${this.state.errors.email ? 'is-danger' : 'is-success'}`}>{this.state.errors.email}</p>
+                      </div> */}
 
-                    <div className="field">
-                      <label className="label">ที่อยู่สำหรับจัดส่งสินค้า<span className="has-text-danger">*</span></label>
-                      <div className="control">
-                        <textarea className="textarea" placeholder="Textarea" name="addr"
-                          onChange={this.onCustomerChange} defaultValue={this.state.customer.addr}></textarea>
+                      <div className="field">
+                        <label className="label">ที่อยู่สำหรับจัดส่งสินค้า<span className="has-text-danger">*</span></label>
+                        <div className="control">
+                          <textarea className={`textarea ${this.state.customer.addr.msg ? 'is-danger' : 'is-success'}`}
+                            placeholder="ที่อยู่สำหรับจัดส่งสินค้า" name="addr"
+                            onChange={this.onCustomerChange} defaultValue={this.state.customer.addr.value}></textarea>
+                        </div>
+                        <p className={`help ${this.state.customer.addr.msg ? 'is-danger' : 'is-success'}`}>{this.state.customer.addr.msg}</p>
                       </div>
-                      <p className="help">{this.state.errors.addr}</p>
-                    </div>
 
-                    <div className="field">
-                      <div className="control">
-                        <label className="checkbox">
-                          <input type="checkbox" />
-                          I agree to the <a href="#">terms and conditions</a>
-                        </label>
-                      </div>
-                    </div>
+                      {/* <div className="field">
+                        <div className="control">
+                          <label className="checkbox">
+                            <input type="checkbox" />
+                            &nbsp;ฉันยอมรับ <a href="#" className="has-text-link">ข้อกำหนด และเงื่อนไข</a> ในการสั่งสินค้าแบบเก็บเงินปลายทาง
+                          </label>
+                        </div>
+                      </div> */}
 
 
-                    <div className="field is-grouped">
-                      <div className="control">
-                        <button className="button is-link">Submit</button>
+                      <div className="field is-grouped">
+                        <div className="control">
+                          <button className="button is-link"
+                            disabled={this.disableSubmit()}
+                            onClick={this.onSubmitForm}>สั่งซื้อสินค้า</button>
+                        </div>
+                        <div className="control">
+                          <button className="button is-text" onClick={this.onCancelForm}>ยกเลิก</button>
+                        </div>
                       </div>
-                      <div className="control">
-                        <button className="button is-text">Cancel</button>
-                      </div>
-                    </div>
-                  </form>
+                    </form>
+                  </div>
                 </div>
-              </div>
+              }
             </div>
           </div>
         </div>
