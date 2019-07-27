@@ -205,7 +205,7 @@ export class PopPage extends React.Component {
         url: 'https://cors-anywhere.herokuapp.com/https://notify-api.line.me/api/notify',
         headers: {
           'content-type': 'application/x-www-form-urlencoded',
-          'authorization': 'Bearer 936TgN16SDMyffpP5Nsk2Dp4asHvbZ3RRQvdXeEXDxp'
+          'authorization': 'Bearer NJq2DB5ADW5tNibORABisTnBkE5SPDp1V4uW5sThfQv'
         },
         data: 'message=' + message
       }).then(result => {
