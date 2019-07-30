@@ -198,7 +198,7 @@ export class PopPage extends React.Component {
     const message = `รายการสั่งซื้อจาก ${this.state.params.from}\nลูกค้า: ${cus.name.value}\nโทร: ${cus.tel.value}\nที่อยู่: ${cus.addr.value}\nจำนวน: ${pd.amount} ขวด\nยอดเงิน: ${pd.price2} บาท\nPercent: ${pd.percent}`;
     if (confirm('ลูกค้ายืนยันการสั่งซื้อสินค้า')) {
       this.setState({ interest: false, buy: true, loading: true })
-      ReactPixel.trackCustom('purchase', { product: 'HR', amount: pd.amount })
+      // ReactPixel.trackCustom('purchase', { product: 'HR', amount: pd.amount })
       ReactPixel.trackCustom('web', { product: 'HR', type: 'buy', amount: pd.amount  })
       axios({
         method: 'post',
