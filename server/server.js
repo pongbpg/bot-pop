@@ -34,13 +34,14 @@ const LINE_TH = {
     'Authorization': `Bearer P/BaTZg8WEP4v2YXVkETNQBAFPnrJJTzai3etBqteKGv/6hFYrGjUHTYN1D4BZ3GX92rm1pRxx+qs1qX1/AC1P/Df/wpZF07US/xoDAnnWGbinWQHycmnq1oF6BpjamaPwm6QMgq2FnkxEY7N9uzsgdB04t89/1O/w1cDnyilFU=`
 };
 var jsonParser = bodyParser.json();
+let obj = {};
 app.post('/api/linebot', jsonParser, (req, res) => {
     const request = req.body.events[0];
     const msg = request.message.text;
     const userId = request.source.userId;
     const adminRef = db.collection('admins').doc(userId);
     const ownerRef = db.collection('owners').doc(userId);
-    let obj = {
+    obj = {
         replyToken: request.replyToken,
         messages: []
     };
@@ -238,6 +239,71 @@ app.post('/api/linebot', jsonParser, (req, res) => {
                                     }
                                     reply(obj, LINE_TH);
                                 })
+                        } else if (msg.indexOf('@@edit:') > -1) {
+                            // const msg = msg.split('@@edit:')[1];
+
+                            if (user.data().role == 'owner') {
+                                initMsgOrder(msg.split('@@edit:')[1])
+                                    .then(resultOrder => {
+                                        if (resultOrder.success) {
+                                            const orderId = resultOrder.data.id ? resultOrder.data.id.replace(/\s/g, '') : '99999999-9999'
+                                            const orderRef = db.collection('orders').doc(orderId);
+                                            orderRef.get()
+                                                .then(order => {
+                                                    if (order.exists) {
+                                                        async function callback() {
+                                                            for (var p = 0; p < order.data().product.length; p++) {
+                                                                await db.collection('products').doc(order.data().product[p].code).get()
+                                                                    .then(product => {
+                                                                        const balance = product.data().amount + order.data().product[p].amount;
+                                                                        db.collection('products').doc(order.data().product[p].code)
+                                                                            .set({ amount: balance }, { merge: true })
+                                                                    })
+                                                            }
+                                                            await db.collection('payments')
+                                                                .where('orderId', '==', orderId)
+                                                                .get()
+                                                                .then(snapShot => {
+                                                                    snapShot.forEach(pay => {
+                                                                        pay.ref.delete();
+                                                                    })
+                                                                })
+                                                            await db.collection('orders').doc(orderId)
+                                                                .update({
+                                                                    ...resultOrder.data
+                                                                }).then(order => {
+                                                                    callbackUpdateProductsAndPayments(orderId, resultOrder)
+                                                                })
+
+                                                        }
+                                                        callback();
+
+                                                    } else {
+                                                        obj.messages.push({
+                                                            type: 'text',
+                                                            text: `${emoji(0x100035)}ไม่มีรายการสั่งซื้อนี้: ${orderId}\nกรุณาตรวจสอบ "รหัสสั่งซื้อ" ค่ะ${emoji(0x10000F)}`
+                                                        })
+                                                        reply(obj, LINE_TH);
+                                                    }
+
+                                                })
+                                        } else {
+                                            obj.messages.push({
+                                                type: `text`,
+                                                text: `${emoji(0x100026)}รายการแก้ไขไม่ถูกต้องกรุณาตรวจสอบค่ะ!!\n${resultOrder.text}`
+                                            })
+                                            reply(obj, LINE_TH);
+                                        }
+                                    })
+
+                            } else {
+                                obj.messages.push({
+                                    type: 'text',
+                                    text: `${emoji(0x100035)}คำสั่งนี้เฉพาะผู้ดูแลระบบค่ะ${emoji(0x10000F)}`
+                                })
+                                reply(obj, LINE_TH);
+                            }
+
                         } else if (msg.indexOf('@@return:') > -1 && msg.split(':').length == 2) {
                             const orderId = msg.split(':')[1].replace(/\s/g, '');;
                             const orderRef = db.collection('orders').doc(orderId);
@@ -369,68 +435,69 @@ app.post('/api/linebot', jsonParser, (req, res) => {
                                                                     }, resultOrder.data))
                                                                     .then(order => {
                                                                         db.collection('groups').doc(groupId).set({})
-                                                                        async function callback() {
-                                                                            for (var p = 0; p < resultOrder.data.product.length; p++) {
-                                                                                await db.collection('products').doc(resultOrder.data.product[p].code).get()
-                                                                                    .then(product => {
-                                                                                        const balance = product.data().amount - resultOrder.data.product[p].amount;
-                                                                                        // if (balance <= product.data().alert) {
-                                                                                            // db.collection('admins').get()
-                                                                                            //     .then(snapShot => {
-                                                                                            //         snapShot.forEach(admin => {
-                                                                                            //             push({
-                                                                                            //                 to: admin.id,
-                                                                                            //                 messages: [
-                                                                                            //                     {
-                                                                                            //                         "type": "text",
-                                                                                            //                         "text": `สินค้า ${product.id}\n${product.data().name}\nเหลือแค่ ${balance} ชิ้นละจ้า`
-                                                                                            //                     }
-                                                                                            //                 ]
-                                                                                            //             }, LINE_TH)
-                                                                                            //         })
-                                                                                            //     })
-                                                                                        // }
-                                                                                        db.collection('products').doc(resultOrder.data.product[p].code)
-                                                                                            .set({ amount: balance }, { merge: true })
-                                                                                    })
-                                                                            }
+                                                                        callbackUpdateProductsAndPayments(orderId, resultOrder)
+                                                                        // async function callback() {
+                                                                        //     for (var p = 0; p < resultOrder.data.product.length; p++) {
+                                                                        //         await db.collection('products').doc(resultOrder.data.product[p].code).get()
+                                                                        //             .then(product => {
+                                                                        //                 const balance = product.data().amount - resultOrder.data.product[p].amount;
+                                                                        //                 // if (balance <= product.data().alert) {
+                                                                        //                 // db.collection('admins').get()
+                                                                        //                 //     .then(snapShot => {
+                                                                        //                 //         snapShot.forEach(admin => {
+                                                                        //                 //             push({
+                                                                        //                 //                 to: admin.id,
+                                                                        //                 //                 messages: [
+                                                                        //                 //                     {
+                                                                        //                 //                         "type": "text",
+                                                                        //                 //                         "text": `สินค้า ${product.id}\n${product.data().name}\nเหลือแค่ ${balance} ชิ้นละจ้า`
+                                                                        //                 //                     }
+                                                                        //                 //                 ]
+                                                                        //                 //             }, LINE_TH)
+                                                                        //                 //         })
+                                                                        //                 //     })
+                                                                        //                 // }
+                                                                        //                 db.collection('products').doc(resultOrder.data.product[p].code)
+                                                                        //                     .set({ amount: balance }, { merge: true })
+                                                                        //             })
+                                                                        //     }
 
-                                                                            await obj.messages.push({
-                                                                                type: 'text',
-                                                                                text: `รหัสสั่งซื้อ: ${orderId}\n${resultOrder.text}\n\n⛔️โปรดอ่านทุกบรรทัด⛔️\n👉กรุณาตรวจสอบข้อมูลรายการสั่งซื้อด้านบนให้ครบถ้วน ถ้าหากพบว่าไม่ถูกต้องกรุณาแจ้งแอดมินให้แก้ไขทันที\n👉หากไม่มีการทักท้วงจากลูกค้า หรือมีการจัดส่งสินค้าเรียบร้อยแล้ว ทางร้านจะถือว่าลูกค้ายืนยันข้อมูลรายการสั่งซื้อดังกล่าว และทางร้านจะไม่รับผิดชอบกรณีใดๆ ทั้งสิ้น\n🙏ขอบคุณนะคะที่อุดหนุนสินค้า😊`
-                                                                            })
-                                                                            await obj.messages.push({
-                                                                                type: 'text',
-                                                                                text: `@@ยกเลิก:${orderId}`
-                                                                            })
-                                                                            for (var b = 0; b < resultOrder.data.banks.length; b++) {
-                                                                                if (['COD', 'CM', 'XX', 'CP'].indexOf(resultOrder.data.banks[b].name) == -1) {
-                                                                                    await db.collection('payments')
-                                                                                        .where('name', '==', resultOrder.data.banks[b].name)
-                                                                                        .where('date', '==', resultOrder.data.banks[b].date)
-                                                                                        .where('time', '==', resultOrder.data.banks[b].time)
-                                                                                        .where('price', '==', resultOrder.data.banks[b].price)
-                                                                                        .get()
-                                                                                        .then(snapShot => {
-                                                                                            snapShot.forEach(doc => {
-                                                                                                obj.messages.push({
-                                                                                                    type: 'text',
-                                                                                                    text: `⚠กรุณาตรวจสอบรายการโอนนี้มีซ้ำ⚠
-                                                                                                รหัสสั่งซื้อ:${doc.data().orderId} เพจ:${doc.data().page}
-                                                                                                รายการที่ซ้ำ: ${doc.data().name} ${moment(doc.data().date, 'YYYYMMDD').format('DD/MM/YY')} ${doc.data().time} จำนวน ${formatMoney(doc.data().price, 0)} บาท`
-                                                                                                })
-                                                                                            })
-                                                                                            db.collection('payments').add({
-                                                                                                orderId,
-                                                                                                ...resultOrder.data.banks[b],
-                                                                                                page: resultOrder.data.page
-                                                                                            })
-                                                                                        })
-                                                                                }
-                                                                            }
-                                                                            await reply(obj, LINE_TH);
-                                                                        }
-                                                                        callback();
+                                                                        //     await obj.messages.push({
+                                                                        //         type: 'text',
+                                                                        //         text: `รหัสสั่งซื้อ: ${orderId}\n${resultOrder.text}\n\n⛔️โปรดอ่านทุกบรรทัด⛔️\n👉กรุณาตรวจสอบข้อมูลรายการสั่งซื้อด้านบนให้ครบถ้วน ถ้าหากพบว่าไม่ถูกต้องกรุณาแจ้งแอดมินให้แก้ไขทันที\n👉หากไม่มีการทักท้วงจากลูกค้า หรือมีการจัดส่งสินค้าเรียบร้อยแล้ว ทางร้านจะถือว่าลูกค้ายืนยันข้อมูลรายการสั่งซื้อดังกล่าว และทางร้านจะไม่รับผิดชอบกรณีใดๆ ทั้งสิ้น\n🙏ขอบคุณนะคะที่อุดหนุนสินค้า😊`
+                                                                        //     })
+                                                                        //     await obj.messages.push({
+                                                                        //         type: 'text',
+                                                                        //         text: `@@ยกเลิก:${orderId}`
+                                                                        //     })
+                                                                        //     for (var b = 0; b < resultOrder.data.banks.length; b++) {
+                                                                        //         if (['COD', 'CM', 'XX', 'CP'].indexOf(resultOrder.data.banks[b].name) == -1) {
+                                                                        //             await db.collection('payments')
+                                                                        //                 .where('name', '==', resultOrder.data.banks[b].name)
+                                                                        //                 .where('date', '==', resultOrder.data.banks[b].date)
+                                                                        //                 .where('time', '==', resultOrder.data.banks[b].time)
+                                                                        //                 .where('price', '==', resultOrder.data.banks[b].price)
+                                                                        //                 .get()
+                                                                        //                 .then(snapShot => {
+                                                                        //                     snapShot.forEach(doc => {
+                                                                        //                         obj.messages.push({
+                                                                        //                             type: 'text',
+                                                                        //                             text: `⚠กรุณาตรวจสอบรายการโอนนี้มีซ้ำ⚠
+                                                                        //                         รหัสสั่งซื้อ:${doc.data().orderId} เพจ:${doc.data().page}
+                                                                        //                         รายการที่ซ้ำ: ${doc.data().name} ${moment(doc.data().date, 'YYYYMMDD').format('DD/MM/YY')} ${doc.data().time} จำนวน ${formatMoney(doc.data().price, 0)} บาท`
+                                                                        //                         })
+                                                                        //                     })
+                                                                        //                     db.collection('payments').add({
+                                                                        //                         orderId,
+                                                                        //                         ...resultOrder.data.banks[b],
+                                                                        //                         page: resultOrder.data.page
+                                                                        //                     })
+                                                                        //                 })
+                                                                        //         }
+                                                                        //     }
+                                                                        //     await reply(obj, LINE_TH);
+                                                                        // }
+                                                                        // callback();
                                                                     })
                                                             }
                                                         })
@@ -873,3 +940,67 @@ const fourDigit = (n) => {
     }
 }
 const emoji = (hex) => { return String.fromCodePoint(hex) };
+
+
+const callbackUpdateProductsAndPayments = async (orderId, resultOrder) => {
+    for (var p = 0; p < resultOrder.data.product.length; p++) {
+        await db.collection('products').doc(resultOrder.data.product[p].code).get()
+            .then(product => {
+                const balance = product.data().amount - resultOrder.data.product[p].amount;
+                // if (balance <= product.data().alert) {
+                //     db.collection('admins').get()
+                //         .then(snapShot => {
+                //             snapShot.forEach(admin => {
+                //                 push({
+                //                     to: admin.id,
+                //                     messages: [
+                //                         {
+                //                             "type": "text",
+                //                             "text": `สินค้า ${product.id}\n${product.data().name}\nเหลือแค่ ${balance} ชิ้นละจ้า`
+                //                         }
+                //                     ]
+                //                 }, LINE_TH)
+                //             })
+                //         })
+                // }
+                db.collection('products').doc(resultOrder.data.product[p].code)
+                    .set({ amount: balance }, { merge: true })
+            })
+    }
+
+    await obj.messages.push({
+        type: 'text',
+        text: `รหัสสั่งซื้อ: ${orderId}\n${resultOrder.text}\n\n⛔️โปรดอ่านทุกบรรทัด⛔️\n👉กรุณาตรวจสอบข้อมูลรายการสั่งซื้อด้านบนให้ครบถ้วน ถ้าหากพบว่าไม่ถูกต้องกรุณาแจ้งแอดมินให้แก้ไขทันที\n👉หากไม่มีการทักท้วงจากลูกค้า หรือมีการจัดส่งสินค้าเรียบร้อยแล้ว ทางร้านจะถือว่าลูกค้ายืนยันข้อมูลรายการสั่งซื้อดังกล่าว และทางร้านจะไม่รับผิดชอบกรณีใดๆ ทั้งสิ้น\n🙏ขอบคุณนะคะที่อุดหนุนสินค้า😊`
+    })
+    await obj.messages.push({
+        type: 'text',
+        text: `@@ยกเลิก:${orderId}`
+    })
+    for (var b = 0; b < resultOrder.data.banks.length; b++) {
+        if (['COD', 'CM', 'XX', 'CP'].indexOf(resultOrder.data.banks[b].name) == -1) {
+            await db.collection('payments')
+                .where('name', '==', resultOrder.data.banks[b].name)
+                .where('date', '==', resultOrder.data.banks[b].date)
+                .where('time', '==', resultOrder.data.banks[b].time)
+                .where('price', '==', resultOrder.data.banks[b].price)
+                .get()
+                .then(snapShot => {
+                    snapShot.forEach(doc => {
+                        obj.messages.push({
+                            type: 'text',
+                            text: `⚠กรุณาตรวจสอบรายการโอนนี้มีซ้ำ⚠
+รหัสสั่งซื้อ:${doc.data().orderId} เพจ:${doc.data().page}
+รายการที่ซ้ำ: ${doc.data().name} ${moment(doc.data().date, 'YYYYMMDD').format('DD/MM/YY')} ${doc.data().time} จำนวน ${formatMoney(doc.data().price, 0)} บาท`
+                        })
+                    })
+                    db.collection('payments').add({
+                        orderId,
+                        ...resultOrder.data.banks[b],
+                        page: resultOrder.data.page
+                    })
+                })
+        }
+    }
+    // console.log(obj)
+    await reply(obj, LINE_TH);
+}
