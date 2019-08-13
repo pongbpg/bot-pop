@@ -14,6 +14,7 @@ export class ReportPage extends React.Component {
             sum: 'daily',
             auth: props.auth,
             pages: props.pages,
+            cost: 'admin',
             country: 'TH',
             page: (['owner', 'stock'].indexOf(props.auth.role) > -1 ? 'ALL' : props.pages[0].id)
         }
@@ -36,6 +37,12 @@ export class ReportPage extends React.Component {
     handlePageChange = (e) => {
         this.setState({
             page: e.target.value
+        })
+        // console.log(e.target.value)
+    }
+    handleCostChange = (e) => {
+        this.setState({
+            cost: e.target.value
         })
         // console.log(e.target.value)
     }
@@ -287,18 +294,25 @@ export class ReportPage extends React.Component {
                                 )}
                                 {['owner'].indexOf(this.state.auth.role) > -1 && (< tr >
                                     <td className="has-text-centered">8</td>
-                                    <td className="has-text-centered">ค่าคอมฯ Admin (วันที่เริ่ม-ถึงวันที่)</td>
+                                    <td className="has-text-centered">ค่าคอมฯ และ ค่าใช้จ่าย&nbsp;
+                                    <select className="select is-info"
+                                            onChange={this.handleCostChange}
+                                            value={this.state.cost}>
+                                            <option value="admin">แอดมิน</option>
+                                            <option value="page">เพจ</option>
+                                        </select>
+                                    </td>
                                     <td className="has-text-centered">
                                         <div className="field is-grouped is-grouped-centered">
                                             <p className="control">
                                                 <a className="button is-danger is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/season/com/admin?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf`}
+                                                    href={`http://yaumjai.com:3000/api/season/com/${this.state.cost}?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=pdf`}
                                                     target="_blank">
                                                     PDF</a>
                                             </p>
                                             <p className="control">
                                                 <a className="button is-success is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/season/com/admin?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel`}
+                                                    href={`http://yaumjai.com:3000/api/season/com/${this.state.cost}?uid=${this.state.uid}&startDate=${moment(this.state.startDate).format('YYYY-MM-DD')}&endDate=${moment(this.state.endDate).format('YYYY-MM-DD')}&file=excel`}
                                                     target="_blank">
                                                     EXCEL</a>
                                             </p>
