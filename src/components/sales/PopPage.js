@@ -182,11 +182,12 @@ export class PopPage extends React.Component {
 
   }
   onInterestClick = () => {
-    ReactPixel.trackCustom('web', { product: 'HR', type: 'interest' })
-    this.setState({ interest: true, buy: false });
-    setTimeout(() => {
-      this.formSale.focus();
-    }, 300)
+    ReactPixel.trackCustom('web', { product: 'HR', type: 'LINE' })
+    window.location.href = 'https://line.me/R/ti/p/%40scr02';
+    // this.setState({ interest: true, buy: false });
+    // setTimeout(() => {
+    //   this.formSale.focus();
+    // }, 300)
   }
   onCancelForm = () => {
     this.setState({ interest: false, buy: false })
@@ -199,7 +200,7 @@ export class PopPage extends React.Component {
     if (confirm('ลูกค้ายืนยันการสั่งซื้อสินค้า')) {
       this.setState({ interest: false, buy: true, loading: true })
       // ReactPixel.trackCustom('purchase', { product: 'HR', amount: pd.amount })
-      ReactPixel.trackCustom('web', { product: 'HR', type: 'buy', amount: pd.amount  })
+      ReactPixel.trackCustom('web', { product: 'HR', type: 'buy', amount: pd.amount })
       axios({
         method: 'post',
         url: 'https://cors-anywhere.herokuapp.com/https://notify-api.line.me/api/notify',
@@ -240,6 +241,7 @@ export class PopPage extends React.Component {
       .filter(key => this.state.customer[key].msg != undefined)
     return err.length > 0 || this.state.product.amount <= 0
   }
+
   render() {
     return (
       <section className="fontGG">
@@ -250,6 +252,10 @@ export class PopPage extends React.Component {
                 <img src="../../images/popp.png" width="50" alt="P.O.P." />
               </span>
               <span className="navbar-item">
+                มูสกำจัดขนสูตรอ่อนโยน
+                &nbsp;<a className="button is-success is-rounded" onClick={this.onInterestClick}>สนใจ!</a>
+              </span>
+              {/* <span className="navbar-item">
                 เวลาโปรโมชั่น {this.state.time.m}:{this.state.time.s} นาที
                 &nbsp;
                 {this.state.seconds > 0
@@ -257,7 +263,7 @@ export class PopPage extends React.Component {
                   : <a className="button is-danger is-rounded" onClick={this.onInjuryTime}>ต่อเวลา!</a>
                 }
 
-              </span>
+              </span> */}
             </div>
           </div>
         </nav>
@@ -359,7 +365,7 @@ export class PopPage extends React.Component {
                 <div className="columns is-centered" style={{ marginTop: 30 }}>
                   <div className="column">
                     <a className="button is-large is-link" onClick={this.onInterestClick} id="interest">
-                      <FaHandORight />สั่งซื้อสินค้า กดปุ่มนี้!<FaHandOLeft />
+                      <FaHandORight />สนใจสอบถามคลิกที่นี่!<FaHandOLeft />
                     </a>
                   </div>
                 </div>

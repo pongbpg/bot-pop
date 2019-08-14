@@ -52,7 +52,7 @@ export class TrackingPage extends React.Component {
             result.search[0].product.map(p => {
               ReactPixel.trackCustom('purchase', {
                 product: p.code,
-                productType: p.typeId,
+                // productType: p.typeId,
                 amount: p.amount
               })
             })
