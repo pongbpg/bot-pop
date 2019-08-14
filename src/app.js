@@ -34,27 +34,31 @@ ReactDOM.render(<LoadingPage />, document.getElementById('app'));
 const logOut = () => {
   store.dispatch(logout());
   renderApp();
-  if (history.location.pathname.indexOf('product') > -1) {
-    // history.push('/' + history.location.pathname);
-  } else {
-    history.push('/');
-  }
+  // if (history.location.pathname.indexOf('product') > -1) {
+  //   // history.push('/' + history.location.pathname);
+  // } else {
+  history.push('/');
+  // }
+}
+if (history.location.pathname.indexOf('product') > -1) {
+  renderApp()
+} else {
+  auth.onAuthStateChanged((user) => {
+    // console.log(user)
+    if (user) {
+      store.dispatch(startGetAuth(user)).then((auth) => {
+        // store.dispatch(startListOrders())
+        store.dispatch(startListPages(store.getState().auth))
+          .then(() => {
+            renderApp()
+          })
+      })
+    } else {
+      logOut();
+    }
+  });
 }
 
-auth.onAuthStateChanged((user) => {
-  // console.log(user)
-  if (user) {
-    store.dispatch(startGetAuth(user)).then((auth) => {
-      // store.dispatch(startListOrders())
-      store.dispatch(startListPages(store.getState().auth))
-        .then(() => {
-          renderApp()
-        })
-    })
-  } else {
-    logOut();
-  }
-});
 
 
     // store.dispatch(startListApps(store.getState().user.apps));
