@@ -940,7 +940,7 @@ const initMsgOrder = (txt) => {
                         const amount = data.product[order]['amount'];
                         const product = products.find(f => f.id === data.product[order]['code'])
                         if (product) {
-                            if (amount > 0) {
+                            if (amount >= 0) {
                                 if (product.amount >= amount) {
                                     const thisCost = (product.cost || 0) * amount;
                                     data.costs += thisCost;
