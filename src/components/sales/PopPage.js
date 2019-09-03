@@ -183,7 +183,7 @@ export class PopPage extends React.Component {
   }
   onInterestClick = () => {
     ReactPixel.trackCustom('web', { product: 'HR', type: 'LINE' })
-    window.location.href = 'https://line.me/R/ti/p/%40scr02';
+    window.location.href = 'https://line.me/R/ti/p/%40pop02';
     // this.setState({ interest: true, buy: false });
     // setTimeout(() => {
     //   this.formSale.focus();
