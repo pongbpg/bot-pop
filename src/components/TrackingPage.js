@@ -93,7 +93,7 @@ export class TrackingPage extends React.Component {
           <div className="container">
             <div className="navbar-brand">
               {/* <span className="navbar-item title">TOPSLIM STORE</span> */}
-              <Link className="navbar-item title" to="/home">TOPSLIM STORE</Link>
+              <Link className="navbar-item title" to="/home">SEASON STORE</Link>
               <span data-target="navbarMenu" onClick={this.toggleIsBurger}
                 className={this.state.isBurger === true ? "navbar-burger burger is-active" : "navbar-burger burger"}>
                 <span></span>
