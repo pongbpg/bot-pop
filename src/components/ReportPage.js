@@ -195,7 +195,7 @@ export class ReportPage extends React.Component {
                                         </div>
                                     </td>
                                 </tr>
-                                {['owner'].indexOf(this.state.auth.role) > -1 && (
+                                {['owner', 'marketing'].indexOf(this.state.auth.role) > -1 && (
                                     <tr>
                                         <td className="has-text-centered">4</td>
                                         <td className="has-text-centered">
@@ -343,7 +343,7 @@ export class ReportPage extends React.Component {
                                 </tr>
                                 )}
 
-                                {['owner'].indexOf(this.state.auth.role) > -1 && (< tr >
+                                {['owner', 'marketing'].indexOf(this.state.auth.role) > -1 && (< tr >
                                     <td className="has-text-centered">10</td>
                                     <td className="has-text-centered">ยอดขายแยกช่องทางโฆษณา (วันที่เริ่ม-ถึงวันที่)</td>
                                     <td className="has-text-centered">
