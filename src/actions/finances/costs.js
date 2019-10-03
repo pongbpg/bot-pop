@@ -1,4 +1,4 @@
-import firestore from '../firebase/firebase';
+import firestore from '../../firebase/firebase';
 export const startListCosts = (date) => {
     return (dispatch) => {
         return firestore.collection('costs')
@@ -25,10 +25,9 @@ function twoDigit(n) { return (n < 10 ? '0' : '') + n; }
 export const startSaveCost = (cost) => {
     return dispatch => {
         return firestore.collection('costs').doc(cost.date + cost.page)
-            .set(cost)
+            .set(cost, { merge: true })
             .then(() => {
                 return dispatch(startListCosts(cost.date))
             })
     }
-
 }

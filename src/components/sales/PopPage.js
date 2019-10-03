@@ -4,7 +4,7 @@ import axios from 'axios'
 import { connect } from 'react-redux';
 import Money from '../../selectors/money';
 import KrFlag from './KrFlag';
-import { FaHandORight, FaHandOLeft } from 'react-icons/lib/fa'
+import { FaHandORight, FaHandOLeft } from 'react-icons/fa'
 import moment from 'moment';
 import ReactPixel from 'react-facebook-pixel';
 ReactPixel.init('383410062281822');

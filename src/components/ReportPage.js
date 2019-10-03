@@ -115,10 +115,11 @@ export class ReportPage extends React.Component {
                                     <td className="has-text-centered">1</td>
                                     <td className="has-text-centered">รายชื่อแพ็คของ (วันที่เริ่ม)
                                     <select className="select is-info"
-                                            onChange={this.handleCountryChange}
-                                            value={this.state.country}>
-                                            <option value='TH'>ไทย</option>
-                                            <option value='KH'>กัมพูชา</option>
+                                            onChange={this.handlePaymentChange}
+                                            value={this.state.payment}>
+                                            <option value='ALL'>ทั้งหมด</option>
+                                            <option value='BANK'>โอนเงิน</option>
+                                            <option value='COD'>COD</option>
                                         </select>
                                     </td>
                                     <td className="has-text-centered">
