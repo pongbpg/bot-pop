@@ -7646,6 +7646,13 @@ react-moment-proptypes@^1.4.0:
   dependencies:
     moment ">=1.6.0"
 
+react-number-format@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/react-number-format/-/react-number-format-4.3.0.tgz#3c6d7c77debad50a121da57a26abd937c9432da6"
+  integrity sha512-IAxm26MVyuiG+CCPlrz4KAOmxi/mVidK/3pIm2796qkfNtfF108QBBOBGLIFFRJQHwdDN/HI0beiAXK6mJM4Lw==
+  dependencies:
+    prop-types "^15.7.2"
+
 react-onclickoutside@^6.7.1:
   version "6.8.0"
   resolved "https://registry.yarnpkg.com/react-onclickoutside/-/react-onclickoutside-6.8.0.tgz#9f91b5b3ed59f4d9e43fd71620dc200773a4d569"
