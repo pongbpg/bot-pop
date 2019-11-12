@@ -141,6 +141,7 @@ export class CodPage extends React.Component {
                                             <th>ID</th>
                                             <th>เลขพัสดุ</th>
                                             <th>ลูกค้า</th>
+                                            <th>เบอร์โทร</th>
                                             <th>ยอดเงิน</th>
                                             <th>โอนแล้ว</th>
                                             <th>ค้างชำระ</th>
@@ -159,19 +160,21 @@ export class CodPage extends React.Component {
                                                         <td>{cod.id}</td>
                                                         <td>{cod.tracking}</td>
                                                         <td>{cod.name + ' ' + cod.page}</td>
+                                                        <td>{cod.tel}</td>
                                                         <td>{Money(cod.price, 0)}</td>
                                                         <td>{cod.received && Money(cod.price, 0)}</td>
-                                                        <td>{!cod.received && Money(cod.price, 0)}</td>
+                                                        <td>{!cod.received && cod.return && Money(cod.price, 0)}</td>
+                                                        <td>{!cod.received && !cod.return && Money(cod.price, 0)}</td>
                                                         <td><input type="checkbox" name={cod.id} disabled={cod.return} checked={cod.received ? true : false} onChange={this.onCheckClick} /></td>
                                                     </tr>
                                                 )
                                             })
                                             : <tr>
-                                                <td colSpan="8" className="has-text-centered">ไม่มีรายการ</td>
+                                                <td colSpan="10" className="has-text-centered">ไม่มีรายการ</td>
                                             </tr>
                                         }
                                         <tr>
-                                            <td colSpan="4">รวม</td>
+                                            <td colSpan="5">รวม</td>
                                             <td>{Money(sumPrice, 0)}</td>
                                             <td>{Money(sumRev, 0)}</td>
                                             <td>{Money(sumNotRev, 0)}</td>
