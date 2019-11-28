@@ -230,7 +230,7 @@ export class ReportPage extends React.Component {
                                         </td>
                                     </tr>
                                 )}
-                                {['owner'].indexOf(this.state.auth.role) > -1 && (< tr >
+                                {['owner','marketing'].indexOf(this.state.auth.role) > -1 && (< tr >
                                     <td className="has-text-centered">5</td>
                                     <td className="has-text-centered">รายงานขายสินค้าของ Admin (วันที่เริ่ม-ถึงวันที่)</td>
                                     <td className="has-text-centered">
