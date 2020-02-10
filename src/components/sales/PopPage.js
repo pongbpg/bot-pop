@@ -363,15 +363,14 @@ export class PopPage extends React.Component {
                 <img src="../../images/pop/9.jpg" />
               </div>
             </div>
-            {(this.state.interest == false && this.state.buy == false) &&
-              <div className="columns is-centered" style={{ marginTop: 30 }}>
-                <div className="column">
-                  <a className="button is-large is-link" onClick={this.onInterestClick} id="interest">
-                    <FaHandPointRight />สนใจสอบถามคลิกที่นี่!<FaHandPointLeft />
-                  </a>
-                </div>
+
+            <div className="columns is-centered" style={{ marginTop: 30 }}>
+              <div className="column">
+                <a className="button is-large is-link" onClick={this.onInterestClick} id="interest">
+                  <FaHandPointRight />สนใจสอบถามคลิกที่นี่!<FaHandPointLeft />
+                </a>
               </div>
-            }
+            </div>
           </div>
         </div>
       </section>
