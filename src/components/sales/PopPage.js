@@ -6,8 +6,9 @@ import Money from '../../selectors/money';
 import KrFlag from './KrFlag';
 import { FaHandPointRight, FaHandPointLeft } from 'react-icons/fa'
 import moment from 'moment';
-// import ReactPixel from 'react-facebook-pixel';
-// ReactPixel.init('383410062281822');
+import ReactPixel from 'react-facebook-pixel';
+ReactPixel.init('383410062281822');
+ReactPixel.pageView();
 // ReactPixel.trackCustom('web', { product: 'HR', type: 'view', seconds: 0 })
 moment.locale('th');
 export class PopPage extends React.Component {
@@ -16,17 +17,17 @@ export class PopPage extends React.Component {
 
     // console.log(queryString.parse(props.location.search))
     this.state = {
-      ppu: 690,
-      product: { amount: 1, percent: 0, price1: 0, price2: 0 },
-      customer: {
-        name: { value: '', msg: 'ต้องมีอย่างน้อย 2 ตัวอักษร' },
-        tel: { value: '', msg: 'ต้องเป็นเบอร์มือถือเท่านั้น' },
-        addr: { value: '', msg: 'ต้องมีรหัสไปรษณีย์' },
-        // email: { value: '', msg: undefined },
-      },
+      // ppu: 690,
+      // product: { amount: 1, percent: 0, price1: 0, price2: 0 },
+      // customer: {
+      //   name: { value: '', msg: 'ต้องมีอย่างน้อย 2 ตัวอักษร' },
+      //   tel: { value: '', msg: 'ต้องเป็นเบอร์มือถือเท่านั้น' },
+      //   addr: { value: '', msg: 'ต้องมีรหัสไปรษณีย์' },
+      //   // email: { value: '', msg: undefined },
+      // },
       // params: queryString.parse(props.location.search),
       // params: this.queryString(props.location.search),
-      time: {}, seconds: 600, interest: false, buy: false, loading: false
+      // time: {}, seconds: 600, interest: false, buy: false, loading: false
     };
     this.timer = 0;
     // this.startTimer = this.startTimer.bind(this);
@@ -182,7 +183,7 @@ export class PopPage extends React.Component {
 
   // }
   onInterestClick = () => {
-    // ReactPixel.trackCustom('web', { product: 'HR', type: 'LINE' })
+    ReactPixel.track('ViewContent', { content_name: 'POP', content_ids: ['HR'], content_type: 'REVIEW' })
     window.location.href = 'https://line.me/R/ti/p/%40pop02';
     // this.setState({ interest: true, buy: false });
     // setTimeout(() => {
