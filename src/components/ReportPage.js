@@ -51,6 +51,7 @@ export class ReportPage extends React.Component {
     }
     render() {
         // console.log('pages', this.state.pages)
+        const rptUri = 'http://yaumjai.com:3000/api/season';
         return (
             <section className="hero">
                 <div className="hero-body">
@@ -123,26 +124,33 @@ export class ReportPage extends React.Component {
                                         </select>
                                     </td>
                                     <td className="has-text-centered">
-                                        <div className="field is-grouped is-grouped-centered">
+                                    <div className="field is-grouped is-grouped-centered">
                                             <p className="control">
                                                 <a className="button is-danger is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/season/delivery?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=pdf&country=${this.state.country}`}
+                                                    href={`${rptUri}/delivery?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=pdf&country=TH&payment=${this.state.payment}`}
                                                     target="_blank">
                                                     PDF
                                         </a>
                                             </p>
                                             <p className="control">
                                                 <a className="button is-success is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/season/delivery?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=excel&country=${this.state.country}`}
+                                                    href={`${rptUri}/delivery?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=excel&country=TH&payment=${this.state.payment}`}
                                                     target="_blank">
                                                     EXCEL
                                         </a>
                                             </p>
                                             <p className="control">
                                                 <a className="button is-warning is-centered is-small"
-                                                    href={`http://yaumjai.com:3000/api/season/delivery?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=flash&country=${this.state.country}`}
+                                                    href={`${rptUri}/delivery?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=flash&country=TH&payment=${this.state.payment}`}
                                                     target="_blank">
                                                     FLASH
+                                        </a>
+                                            </p>
+                                            <p className="control">
+                                                <a className="button is-danger is-centered is-small"
+                                                    href={`${rptUri}/delivery?startDate=${moment(this.state.startDate).format('YYYYMMDD')}&file=jt&country=TH&payment=${this.state.payment}`}
+                                                    target="_blank">
+                                                    J&T
                                         </a>
                                             </p>
                                         </div>

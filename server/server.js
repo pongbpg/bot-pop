@@ -10,9 +10,12 @@ const shortid = require('shortid');
 const fs = require('fs');
 moment.locale('th');
 const admin = require('firebase-admin');
-// const serviceAccount = require('./admin.json');
+
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config({ path: '.env.development' });
+}
+
 admin.initializeApp({
-    // credential: admin.credential.cert(serviceAccount)
     credential: admin.credential.cert({
         "type": "service_account",
         "project_id": "seasondb-6d28b",
@@ -293,7 +296,7 @@ app.post('/api/linebot', jsonParser, (req, res) => {
                                                                             text: `@@ยกเลิก:${orderId}`
                                                                         })
                                                                         for (var b = 0; b < resultOrder.data.banks.length; b++) {
-                                                                            if (['COD', 'CM', 'XX', 'CP'].indexOf(resultOrder.data.banks[b].name) == -1) {
+                                                                            if (['COD', 'CM', 'ADMIN', 'STOCK', 'XX', 'CP'].indexOf(resultOrder.data.banks[b].name) == -1) {
                                                                                 await db.collection('payments')
                                                                                     .where('name', '==', resultOrder.data.banks[b].name)
                                                                                     .where('date', '==', resultOrder.data.banks[b].date)
@@ -566,7 +569,7 @@ app.post('/api/linebot', jsonParser, (req, res) => {
                                                                                 text: `@@ยกเลิก:${orderId}`
                                                                             })
                                                                             for (var b = 0; b < resultOrder.data.banks.length; b++) {
-                                                                                if (['COD', 'CM', 'XX', 'CP'].indexOf(resultOrder.data.banks[b].name) == -1) {
+                                                                                if (['COD', 'CM', 'ADMIN', 'STOCK', 'XX', 'CP'].indexOf(resultOrder.data.banks[b].name) == -1) {
                                                                                     await db.collection('payments')
                                                                                         .where('name', '==', resultOrder.data.banks[b].name)
                                                                                         .where('date', '==', resultOrder.data.banks[b].date)
@@ -700,7 +703,7 @@ const push = (obj, LINE_HEADER) => {
     });
 };
 const initMsgOrder = (txt) => {
-    const express = ['F', 'K', 'M'];
+    const express = ['F', 'K', 'M', 'J'];
     // const pages = ["@DB", "@SCR01", "@TCT01", "@TD01", "@TD02", "@TS01", "@TS02", "@TS03", "@TST", "DB", "SCR01", "SSN01", "TCT01", "TD01", "TD02", "TS01", "TS02", "TS03", "TST", "TPF01"];
     return db.collection('pages')
         .where('country', '==', 'TH')
@@ -866,6 +869,32 @@ const initMsgOrder = (txt) => {
                                         value = `${value + ' ' + emoji(0x1000A6)}รหัสไปรษณีย์ไม่ถูกต้องundefined`
                                     }
                                 }
+                                let amphur = 'ไม่พบอำเภอ';
+                                let province = 'ไม่พบจังหวัด';
+                                let addrArr = [];
+                                if (value.indexOf(' เขต') > -1) {
+                                    province = 'กรุงเทพมหานคร';
+                                    addrArr = value.split(' เขต');
+                                    amphur = 'เขต' + addrArr[1].split(' ')[0];
+                                } else {
+                                    addrArr = value.replace(' อำเภอ', ' อ.').split(' อ.');
+                                    if (addrArr.length > 1)
+                                        amphur = addrArr[1].split(' ')[0];
+                                    addrArr = value.replace(' จังหวัด', ' จ.').split(' จ.');
+                                    if (addrArr.length > 1)
+                                        province = addrArr[1].split(' ')[0];
+                                }
+
+                                const provinceJson = fs.readFileSync('./server/province.json');
+                                const provinces = JSON.parse(provinceJson);
+                                if (provinces.filter(f => f.province == province).length == 0)
+                                    value = value.concat(emoji(0x1000A6) + province + 'undefined');
+
+                                const amphurJson = fs.readFileSync('./server/amphur.json');
+                                const amphures = JSON.parse(amphurJson);
+                                if (amphures.filter(f => f.province == province && f.amphur == amphur).length == 0)
+                                    value = value.concat(emoji(0x1000A6) + amphur + 'undefined');
+
                                 value = value.replace('99999', '')
                             } else if (key == 'tel') {
                                 value = value.replace(/\D/g, ''); //เหลือแต่ตัวเลข
@@ -888,11 +917,11 @@ const initMsgOrder = (txt) => {
             data.bank = data.banks ? data.banks.map(bank => {
                 let checkBank = false;
                 if (bank.name.indexOf('COD') > -1) {
-                    if (['F', 'K'].indexOf(data.name.substr(0, 1)) > -1) {
+                    if (['F', 'K','J'].indexOf(data.name.substr(0, 1)) > -1) {
                         checkBank = true;
                     }
                 } else {
-                    if (['F', 'K', 'M'].indexOf(data.name.substr(0, 1)) > -1) {
+                    if (['F', 'K', 'M','J'].indexOf(data.name.substr(0, 1)) > -1) {
                         checkBank = true;
                     }
                 }
