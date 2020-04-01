@@ -14,6 +14,7 @@ export class ReportPage extends React.Component {
             sum: 'daily',
             auth: props.auth,
             pages: props.pages,
+            payment: 'ALL',
             cost: 'admin',
             country: 'TH',
             page: (['owner', 'stock'].indexOf(props.auth.role) > -1 ? 'ALL' : props.pages[0].id)
@@ -45,6 +46,9 @@ export class ReportPage extends React.Component {
             cost: e.target.value
         })
         // console.log(e.target.value)
+    }
+    handlePaymentChange = (e) => {
+        this.setState({ payment: e.target.value })
     }
     handleCountryChange = (e) => {
         this.setState({ country: e.target.value })
