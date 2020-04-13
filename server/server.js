@@ -917,11 +917,11 @@ const initMsgOrder = (txt) => {
             data.bank = data.banks ? data.banks.map(bank => {
                 let checkBank = false;
                 if (bank.name.indexOf('COD') > -1) {
-                    if (['F', 'K','J'].indexOf(data.name.substr(0, 1)) > -1) {
+                    if (['F', 'K', 'J'].indexOf(data.name.substr(0, 1)) > -1) {
                         checkBank = true;
                     }
                 } else {
-                    if (['F', 'K', 'M','J'].indexOf(data.name.substr(0, 1)) > -1) {
+                    if (['F', 'K', 'M', 'J'].indexOf(data.name.substr(0, 1)) > -1) {
                         checkBank = true;
                     }
                 }
@@ -939,12 +939,12 @@ const initMsgOrder = (txt) => {
                     data.channel = `${emoji(0x1000A6)}ไม่ได้ใส่ช่องทางโฆษณาundefined`
                 } else {
                     if (data.page.indexOf('@') > -1) {
-                        if (['O', 'N', 'F'].indexOf(data.channel) == -1) {
-                            data.channel = `${emoji(0x1000A6)}ใส่ช่องทางโฆษณาได้เพียง O,N,F เท่านั้นundefined`
+                        if (['O', 'N', 'F', 'T'].indexOf(data.channel) == -1) {
+                            data.channel = `${emoji(0x1000A6)}ใส่ช่องทางโฆษณาได้เพียง O,N,F,T เท่านั้นundefined`
                         }
                     } else {
-                        if (['O', 'N'].indexOf(data.channel) == -1) {
-                            data.channel = `${emoji(0x1000A6)}ใส่ช่องทางโฆษณาได้เพียง O,N เท่านั้นundefined`
+                        if (['O', 'N', 'T'].indexOf(data.channel) == -1) {
+                            data.channel = `${emoji(0x1000A6)}ใส่ช่องทางโฆษณาได้เพียง O,N,T เท่านั้นundefined`
                         }
                     }
                 }
