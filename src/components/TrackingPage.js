@@ -7,7 +7,7 @@ import { FaSearch } from 'react-icons/fa';
 import Money from '../selectors/money';
 import moment from 'moment';
 import ReactPixel from 'react-facebook-pixel';
-ReactPixel.init('383410062281822');
+ReactPixel.init('548407809192149');
 moment.locale('th');
 export class TrackingPage extends React.Component {
   constructor(props) {
