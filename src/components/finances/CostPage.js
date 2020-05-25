@@ -98,8 +98,11 @@ export class CostPage extends React.Component {
         let sumPage = [];
         let count = 0;
         const date = this.state.date;
-        this.state.pages.map(page => {
-            if (page.actId) {
+        // console.log(this.state.pages)
+        this.state.pages.filter(f => f.actId != "")
+            .map(page => {
+                // if (page.actId) {
+                console.log(page.id)
                 const acts = page.actId.split(',');
                 if (sumPage.indexOf(page.id) == -1) {
                     sumPage[page.id] = 0;
@@ -141,8 +144,8 @@ export class CostPage extends React.Component {
                             }
                         })
                 }
-            }
-        })
+                // }
+            })
     }
 
     render() {
