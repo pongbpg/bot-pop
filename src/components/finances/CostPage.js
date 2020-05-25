@@ -99,7 +99,7 @@ export class CostPage extends React.Component {
         let count = 0;
         const date = this.state.date;
         // console.log(this.state.pages)
-        this.state.pages.filter(f => f.actId != "")
+        this.state.pages.filter(f => f.actId)
             .map(page => {
                 // if (page.actId) {
                 console.log(page.id)
