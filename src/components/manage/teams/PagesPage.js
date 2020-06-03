@@ -36,6 +36,7 @@ export class PagesPage extends React.Component {
 
     onNewTeamChange = (e) => {
         const country = this.state.teams.find(team => team.id == e.target.value).country
+        // console.log(this.state.newPage)
         this.setState({ newPage: { ...this.state.newPage, team: e.target.value, country } })
     }
     onNewAdminChange = (e) => {
@@ -76,14 +77,25 @@ export class PagesPage extends React.Component {
         this.setState({ page: { ...this.state.page, admin: admin.name, adminId: admin.userId } })
     }
     onComChange = (e) => {
-        this.setState({ page: { ...this.state.page, ...this.state.coms.find(com => com.comId == e.target.value) } })
+        const com = this.state.coms.find(com => com.comId == e.target.value);
+        this.setState({
+            page: { ...this.state.page, ...com },
+            // pages: this.state.pages.map(m => m.id == this.state.page.id ? { ...m, ...com } : m)
+        })
     }
     onActIdChange = (e) => {
         const actId = e.target.value.replace(/\s/g, '');
-        this.setState({ page: { ...this.state.page, actId } })
+        this.setState({
+            page: { ...this.state.page, actId },
+            // pages: this.state.pages.map(m => m.id == this.state.page.id ? { ...m, actId } : m)
+        });
     }
     onActiveChange = (e) => {
-        this.setState({ page: { ...this.state.page, active: e.target.value == 'true' ? true : false } })
+        const active = e.target.value == 'true' ? true : false;
+        this.setState({
+            page: { ...this.state.page, active },
+            // pages: this.state.pages.map(m => m.id == this.state.page.id ? { ...m, active } : m)
+        })
     }
     onEditClick = (e) => {
         this.setState({ page: this.state.pages.find(f => f.id == e.target.value) })
@@ -96,10 +108,13 @@ export class PagesPage extends React.Component {
         if (this.checkObj(this.state.page)) {
             if (confirm('คุณแน่ใจที่จะแก้ไขข้อมูลเพจนี้')) {
                 this.props.startUpdatePage(this.state.page)
-                this.props.startListPages(this.state.auth);
+                // this.props.startListPages(this.state.auth);
             }
 
-            this.setState({ page: { id: '', actId: '' } })
+            this.setState({
+                pages: this.state.pages.map(m => m.id == this.state.page.id ? { ...this.state.page } : m),
+                page: { id: '', actId: '' }
+            })
         } else {
             console.log(this.state.page)
             alert('กรุณาเลือกข้อมูลให้ครบ')
@@ -176,7 +191,7 @@ export class PagesPage extends React.Component {
                                 <th className="has-text-left">Page</th>
                                 <th className="has-text-left">Admin</th>
                                 {/* <th className="has-text-left">Com</th> */}
-                                <th className="has-text-left" >Act ID</th>
+                                <th className="has-text-left">Token</th>
                                 <th className="has-text-left" >Status</th>
                                 <th className="has-text-centered" width="10%">จัดการ</th>
                             </tr>
@@ -192,7 +207,7 @@ export class PagesPage extends React.Component {
                                                 <td>{page.id}</td>
                                                 <td>{page.admin}</td>
                                                 {/* <td>{page.comId}</td> */}
-                                                <td>{page.actId}</td>
+                                                <td>{page.actId ? 'Connected' : ''}</td>
                                                 <td>{page.active ? 'เปิด' : 'ปิด'}</td>
                                                 <td className="has-text-centered">
                                                     <button className="button"
@@ -239,8 +254,10 @@ export class PagesPage extends React.Component {
                                                         </div>
                                                     </td> */}
                                                     <td>
-                                                        <input type="text" className="input" onChange={this.onActIdChange} value={this.state.page.actId} />
+                                                        {/* <input type="text" className="input" onChange={this.onActIdChange} value={this.state.page.actId} /> */}
+                                                        <textarea className="textarea" rows="5" onChange={this.onActIdChange} value={this.state.page.actId}>
 
+                                                        </textarea>
                                                     </td>
                                                     <td>
                                                         <div className="control select">

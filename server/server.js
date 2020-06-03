@@ -446,7 +446,7 @@ app.post('/api/linebot', jsonParser, (req, res) => {
                                     }
                                     reply(obj, LINE_TH);
                                 })
-                           } else if (msg.indexOf('#') > -1) {
+                        } else if (msg.indexOf('#') > -1) {
                             initMsgOrder(msg)
                                 .then(resultOrder => {
                                     if (resultOrder.success) {
@@ -904,6 +904,9 @@ const initMsgOrder = (txt) => {
                                     addrArr = value.replace(' จังหวัด', ' จ.').split(' จ.');
                                     if (addrArr.length > 1)
                                         province = addrArr[1].split(' ')[0];
+
+                                    if (amphur == 'เมือง')
+                                        amphur += province;
                                 }
 
                                 const provinceJson = fs.readFileSync('./server/province.json');
