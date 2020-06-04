@@ -100,6 +100,7 @@ export class CostPage extends React.Component {
         let sumPage = [];
         let count = 0;
         const date = this.state.date;
+        const costs = this.state.costs;
         let fetchs = [];
         // console.log(this.state.pages)
         this.state.pages.filter(f => f.actId)
@@ -177,7 +178,8 @@ export class CostPage extends React.Component {
                     .map((values, pageId) => {
                         console.log(values, pageId)
                         const costPage = _.reduce(_.pluck(values, 'spend'), (t, n) => t + n, 0);
-                        let cost = this.state.costs.find(f => f.page == pageId);
+                        let cost = costs.find(f => f.page == pageId);
+                        // console.log(cost)
                         this.props.startSaveCost({
                             date: moment(date).format('YYYYMMDD'),
                             page: pageId,
