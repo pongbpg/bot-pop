@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { startLogout } from '../actions/auth';
 import { MdMailOutline, MdAlarmOn, MdPanTool, MdPayment, MdEmail, MdPeople } from 'react-icons/md';
-import { FaSearch, FaFileAlt, FaFacebook, FaShippingFast, FaLine } from 'react-icons/fa';
+import { FaSearch, FaFileAlt, FaFacebook, FaShippingFast, FaLine, FaLayerGroup } from 'react-icons/fa';
 export class Header extends React.Component {
   constructor(props) {
     super(props);
@@ -100,7 +100,7 @@ export class Header extends React.Component {
                   <div className="navbar-item has-dropdown is-hoverable">
                     <a className="navbar-link">จัดการ</a>
                     <div className="navbar-dropdown">
-                    <Link className="navbar-item" to="/manage/teams">
+                      <Link className="navbar-item" to="/manage/teams">
                         <span className="icon"><MdPeople /></span>Team
                       </Link>
                       <Link className="navbar-item" to="/manage/admins">
@@ -109,10 +109,10 @@ export class Header extends React.Component {
                       <Link className="navbar-item" to="/manage/emails">
                         <span className="icon"><MdEmail /></span>Email
                       </Link>
-                      {/* <Link className="navbar-item" to="/manage/product/types">
-                        ประเภทสินค้า
+                      <Link className="navbar-item" to="/manage/product/types">
+                        <span className="icon"><FaLayerGroup /></span>Types
                       </Link>
-                      <Link className="navbar-item" to="/manage/coms">
+                      {/*    <Link className="navbar-item" to="/manage/coms">
                         ค่าคอมฯ
                       </Link> */}
                     </div>
