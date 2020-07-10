@@ -60,9 +60,8 @@ export const startCutOff = () => {
 }
 const tomorrow = () => {
     function twoDigit(n) { return (n < 10 ? '0' : '') + n; }
-    var now = new Date();
-    now.setDate(now.getDate() + 1);
-    return '' + now.getFullYear() + twoDigit(now.getMonth() + 1) + twoDigit(now.getDate());
+    var tmr = moment().add(1, 'days');
+    return '' + tmr.years() + twoDigit(tmr.months() + 1) + twoDigit(tmr.days() + 1);
 }
 const today = () => {
     function twoDigit(n) { return (n < 10 ? '0' : '') + n; }
